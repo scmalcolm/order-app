@@ -1,2 +1,5 @@
 # Ignore database instances
 db/*.sqlite3
+
+# Ignore compiled python
+*.pyc
