@@ -12,7 +12,7 @@ FROM
 
 CREATE VIEW order_entries AS
 SELECT
-    po, isbn, title, quantity, pub_name, binding, order_id
+    po, isbn13, title, quantity, pub_name, binding, order_id
 FROM
     books            NATURAL JOIN
     orders           NATURAL JOIN

@@ -29,7 +29,7 @@ CREATE TABLE orders (
     po          TEXT      NOT NULL UNIQUE,
     order_date  TEXT      NOT NULL DEFAULT CURRENT_DATE,
     ship_id     INTEGER   NOT NULL REFERENCES ship_methods ON DELETE RESTRICT,
-    comment     TEXT,
+    comment     TEXT      DEFAULT "",
     dist_id     INTEGER   NOT NULL REFERENCES distributors ON DELETE RESTRICT
 );
 
