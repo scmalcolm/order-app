@@ -8,12 +8,12 @@ def setup():
     """create in-memory database"""
     global con
 
-    data = None
+    schema = None
     with open("db/create_tables.sql") as f:
-        data = f.read()
+        schema = f.read()
     try:
-        con = sqlite3.connect('db/test.sqlite3')
-        con.executescript(data)
+        con = sqlite3.connect(':memory:')
+        con.executescript(schema)
         con.commit()
     except sqlite3.Error, e:
         print "Error: %s" % e.args[0]
@@ -59,7 +59,6 @@ def depopulate_db():
     except sqlite3.Error, e:
         print "Error: %s" % e.args[0]
 
-@with_setup(populate_db, depopulate_db)
 def test_connection():
     global con
     try:
@@ -69,3 +68,4 @@ def test_connection():
     except sqlite3.Error, e:
         print "Error: %s" % e.args[0]
     assert result[0] == "3.7.10"
+
