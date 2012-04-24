@@ -11,7 +11,6 @@ def setup():
         con = sqlite3.connect(':memory:')
     except sqlite3.Error, e:
         print "Error: %s" % e.args[0]
-    return con
 
 def teardown():
     """destroy in-memory database"""
