@@ -1,5 +1,4 @@
 import sqlite3
-import sys
 from nose.tools import with_setup
 
 con = None
@@ -8,15 +7,11 @@ def setup():
     """create in-memory database"""
     global con
 
-    schema = None
-    with open("db/create_tables.sql") as f:
-        schema = f.read()
     try:
         con = sqlite3.connect(':memory:')
-        con.executescript(schema)
-        con.commit()
     except sqlite3.Error, e:
         print "Error: %s" % e.args[0]
+    return con
 
 def teardown():
     """destroy in-memory database"""
@@ -30,11 +25,14 @@ def populate_db():
     """insert test data"""
     global con
 
-    data = None
+    insert_data, schema = None
+    with open("db/create_tables.sql") as f:
+        schema = f.read()
     with open("db/test_data.sql") as f:
-        data = f.read()
+        insert_data = f.read()
     try:
-        con.executescript(data)
+        con.executescript(schema)
+        con.executescript(insert_data)
         con.commit()
     except sqlite3.Error, e:
         print "Error: %s" % e.args[0]
@@ -43,7 +41,7 @@ def depopulate_db():
     """dump test data"""
     global con
 
-    data = """DELETE FROM order_quantities;
+    delete_all = """DELETE FROM order_quantities;
             DELETE FROM orders;
             DELETE FROM ship_methods;
             DELETE FROM authors;
@@ -54,7 +52,7 @@ def depopulate_db():
             DELETE FROM distributors;"""
 
     try:
-        con.executescript(data)
+        con.executescript(delete_all)
         con.commit()
     except sqlite3.Error, e:
         print "Error: %s" % e.args[0]
@@ -68,4 +66,3 @@ def test_connection():
     except sqlite3.Error, e:
         print "Error: %s" % e.args[0]
     assert result[0] == "3.7.10"
-
