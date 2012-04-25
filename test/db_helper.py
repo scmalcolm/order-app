@@ -1,7 +1,7 @@
 import sqlite3
 
 schema_file = 'db/create_tables.sql'
-test_data_file = 'db/test_data.sql'
+test_data_file = 'test/test_data.sql'
 
 def connect(db = ":memory:"):
     """return a db connection"""
@@ -29,7 +29,7 @@ def repopulate(connection):
         connection.executescript(schema)
         connection.executescript(insert_data)
     except sqlite3.Error, e:
+        print "Cannot repopulate test database!"
         print "Error: %s" % e.args[0]
     else:
         connection.commit()
-

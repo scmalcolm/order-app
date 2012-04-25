@@ -36,6 +36,10 @@ INSERT INTO publishers
     (pub_name)
     VALUES
     ("Anansi");
+INSERT INTO publishers
+    (pub_name)
+    VALUES
+    ("William Morrow");
 
 INSERT INTO locations
     (location)
