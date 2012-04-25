@@ -42,36 +42,22 @@ def test_book_insert():
     db = OrderDB(test_db)
     db.add_book(**TEST_PARAMS)
 
-    con = db_helper.connect(test_db)
-    try:
-        cur = con.cursor()
-        cur.execute(BOOK_QUERY, TEST_PARAMS)
-        book_rows = cur.fetchall()
-        cur.execute(AUTHOR_QUERY, TEST_PARAMS)
-        author_rows = cur.fetchall()
-    except sqlite3.Error, e:
-        print "Insertion test failed to retrieve data!"
-        print "Error: %s" % e.args[0]
+    with db_helper.connect(test_db) as con:
+        books = [row for row in con.execute(BOOK_QUERY, TEST_PARAMS)]
+        authors = [row for row in con.execute(AUTHOR_QUERY, TEST_PARAMS)]
     
-    assert book_rows is not None
-    assert len(book_rows) == 1
-    
-    book_columns_are_correct = True
-    for row in book_rows:
-        for column_name in TEST_PARAMS.keys():
-            if column_name == 'authors':
-                continue
-            expected = TEST_PARAMS[column_name]
-            result = row[column_name]
-            print 'Column: {}, Expected: {}, Result: {}'.format(column_name, expected, result)
-            if not expected == result:
-                book_columns_are_correct = False
-    assert book_columns_are_correct
+    assert books is not None and len(books) == 1
 
-    assert author_rows is not None
-    assert len(author_rows) == 1
+    for param, expected in TEST_PARAMS.iteritems():
+        if param == 'authors':
+            continue
+        result = books[0][param]
+        print 'Param: {}, Expected: {}, Result: {}'.format(param, expected, result)
+        assert expected == result
 
-    retrieved_authors = [row['author'] for row in author_rows]
+    assert authors is not None and len(authors) == 1
+
+    author_names = [row['author'] for row in authors]
     for author in TEST_PARAMS['authors']:
-        retrieved_authors.remove(author)
-    assert len(retrieved_authors) == 0
+        author_names.remove(author)
+    assert len(author_names) == 0
