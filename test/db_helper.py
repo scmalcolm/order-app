@@ -8,6 +8,7 @@ def connect(db = ":memory:"):
     connection = None
     try:
         connection = sqlite3.connect(db)
+        connection.row_factory = sqlite3.Row
     except sqlite3.Error, e:
         print "Error: %s" % e.args[0]
     return connection
