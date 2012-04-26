@@ -20,8 +20,6 @@ def close(connection):
 
 def repopulate(connection):
     """recreate the test db from file"""
-    test_data = None
-    schema = None
     with open(schema_file) as f:
         schema = f.read()
     with open(test_data_file) as f:
