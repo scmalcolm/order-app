@@ -40,3 +40,22 @@ class OrderDB:
         BOOK_DELETE_QUERY = "DELETE FROM books WHERE isbn13 IS ?;"
         with self.db_connection as connection:
             connection.execute(BOOK_DELETE_QUERY, [isbn13])
+
+    def update_book(self, **params):
+        """update a book record"""
+        BOOK_ID_QUERY = "SELECT book_id FROM books WHERE isbn13 IS :old_isbn13;"
+        BOOK_UPDATE_QUERY = """UPDATE book_view SET
+        isbn13 = :isbn13,
+        title = :title,
+        binding = :binding,
+        location = :location,
+        pub_name = :pub_name
+        WHERE book_id is :book_id;"""
+        COLUMNS = ['isbn13','title','binding','location','pub_name']
+        
+        with self.db_connection as connection:
+            row = connection.execute(BOOK_ID_QUERY, params).fetchone()
+            if row is not None:
+                params['book_id']=row['book_id']
+            connection.execute(BOOK_UPDATE_QUERY, params)
+

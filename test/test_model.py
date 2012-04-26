@@ -49,10 +49,47 @@ def test_book_insert():
         author_names.remove(author)
     assert len(author_names) == 0
 
+def test_book_update():
+    global test_db
+
+    TEST_PARAMS = {
+    'old_isbn13': "9780061474095",
+    'isbn13': "9780061474096",
+    'title': 'Anathem',
+    'binding': 'Cloth',
+    'location': 'Fiction',
+    'pub_name': 'William Morrow',
+    'authors': ['Neal Stephenson']}
+
+    BOOK_QUERY = "SELECT * FROM book_view WHERE isbn13 IS :isbn13;"
+    AUTHOR_QUERY = "SELECT * FROM books NATURAL JOIN authors WHERE isbn13 IS :isbn13;"
+
+    db = OrderDB(test_db)
+    db.update_book(**TEST_PARAMS)
+
+    with connect(test_db) as con:
+        books = [row for row in con.execute(BOOK_QUERY, TEST_PARAMS)]
+        authors = [row for row in con.execute(AUTHOR_QUERY, TEST_PARAMS)]
+        
+    skip_list = set(['old_isbn13', 'authors'])
+    for param, expected in TEST_PARAMS.iteritems():
+        if param in skip_list:
+            continue
+        result = books[0][param]
+        print 'Param: {}, Expected: {}, Result: {}'.format(param, expected, result)
+        assert expected == result
+
+    assert authors is not None and len(authors) == 1
+
+    author_names = [row['author'] for row in authors]
+    for author in TEST_PARAMS['authors']:
+        author_names.remove(author)
+    assert len(author_names) == 0
+
 def test_book_delete():
     global test_db
 
-    params = {'isbn13': '9780061474095'}
+    params = {'isbn13': '9780061474096'}
 
     BOOK_QUERY    = "SELECT * FROM book_view WHERE isbn13 IS :isbn13;"
     AUTHOR_QUERY  = "SELECT * FROM authors WHERE book_id IS :book_id;"
