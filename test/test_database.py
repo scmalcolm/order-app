@@ -42,8 +42,28 @@ def test_book_view():
 
 def test_book_view_insert():
     global test_db
-    INSERT = """INSERT INTO book_view VALUES
+    INSERT = """INSERT INTO book_view
+    (isbn13, title, binding, location, pub_name)
+    VALUES
     (:isbn13, :title, :binding, :location, :pub_name);"""
+    EXPECTED = {
+        'isbn13': '9780199535545',
+        'title': 'Northanger Abbey the book',
+        'binding': 'Cloth',
+        'location': 'History',
+        'pub_name': 'Penguin'}
+    QUERY = "SELECT * FROM book_view WHERE isbn13 IS :isbn13;"
+    with test_db:
+        test_db.execute(INSERT, EXPECTED)
+        result = test_db.execute(QUERY, EXPECTED).fetchone()
+    for (key, value) in EXPECTED.iteritems():
+        assert value == result[key]
+
+def test_book_view_update():
+    global test_db
+    UPDATE = """UPDATE book_view SET
+    title = :title, binding = :binding, location = :location, pub_name = :pub_name
+    WHERE isbn13 = :isbn13;"""
     EXPECTED = {
         'isbn13': '9780199535545',
         'title': 'Northanger Abbey',
@@ -52,7 +72,7 @@ def test_book_view_insert():
         'pub_name': 'Oxford'}
     QUERY = "SELECT * FROM book_view WHERE isbn13 IS :isbn13;"
     with test_db:
-        test_db.execute(INSERT, EXPECTED)
+        test_db.execute(UPDATE, EXPECTED)
         result = test_db.execute(QUERY, EXPECTED).fetchone()
     for (key, value) in EXPECTED.iteritems():
         assert value == result[key]

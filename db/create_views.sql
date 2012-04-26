@@ -1,6 +1,6 @@
 DROP VIEW IF EXISTS order_headers;
 DROP VIEW IF EXISTS order_entries;
-DROP VIEW IF EXISTS book_view;
+DROP VIEW IF EXISTS book_view; 
 
 CREATE VIEW order_headers AS
     SELECT DISTINCT
@@ -23,7 +23,7 @@ CREATE VIEW order_entries AS
 
 CREATE VIEW book_view AS
     SELECT
-        isbn13, title, binding, location, pub_name
+        book_id, isbn13, title, binding, location, pub_name
     FROM
         books       NATURAL JOIN
         bindings    NATURAL JOIN
@@ -41,6 +41,16 @@ CREATE TRIGGER book_view_insert INSTEAD OF INSERT ON book_view BEGIN
         locations ON location IS NEW.location
         WHERE binding IS NEW.binding
         LIMIT 1;
+    END;
+
+CREATE TRIGGER book_view_update INSTEAD OF UPDATE ON book_view BEGIN
+    UPDATE books SET
+    isbn13 = NEW.isbn13,
+    title = NEW.title,
+    binding_id = (SELECT binding_id FROM bindings WHERE binding IS NEW.binding),
+    location_id = (SELECT location_id FROM locations WHERE location IS NEW.location),
+    pub_id = (SELECT pub_id FROM publishers WHERE pub_name IS NEW.pub_name)
+    WHERE book_id IS OLD.book_id;
     END;
 
 
