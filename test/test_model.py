@@ -1,18 +1,16 @@
 import sqlite3
-import db_helper
+from db_helper import prepare_test_database, connect
 from ..model import *
 
 test_db = "db/test.sqlite3"
 
 def setup():
     global test_db
-    con = db_helper.connect(test_db)
-    db_helper.repopulate(con)
-    con.commit()
-    con.close()
-
+    prepare_test_database(test_db)
+    
 def test_model_init():
     db = OrderDB()
+    db = OrderDB(test_db)
 
 def test_book_insert():
     global test_db
@@ -42,7 +40,7 @@ def test_book_insert():
     db = OrderDB(test_db)
     db.add_book(**TEST_PARAMS)
 
-    with db_helper.connect(test_db) as con:
+    with connect(test_db) as con:
         books = [row for row in con.execute(BOOK_QUERY, TEST_PARAMS)]
         authors = [row for row in con.execute(AUTHOR_QUERY, TEST_PARAMS)]
     

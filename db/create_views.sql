@@ -1,5 +1,6 @@
 DROP VIEW IF EXISTS order_headers;
 DROP VIEW IF EXISTS order_entries;
+DROP VIEW IF EXISTS book_view;
 
 CREATE VIEW order_headers AS
 SELECT DISTINCT
@@ -19,3 +20,14 @@ FROM
     order_quantities NATURAL JOIN
     publishers       NATURAL JOIN
     bindings;
+
+CREATE VIEW book_view AS
+SELECT
+    isbn13, title, binding, location, pub_name
+FROM
+    books       NATURAL JOIN
+    bindings    NATURAL JOIN
+    locations   NATURAL JOIN
+    publishers;
+
+
