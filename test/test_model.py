@@ -7,6 +7,32 @@ test_db = "db/test.sqlite3"
 def setup():
     global test_db
     prepare_test_database(test_db)
+
+def get_book_id(isbn13):
+    global test_db
+    BOOK_ID_QUERY = "SELECT book_id FROM books WHERE isbn13 IS ?;"
+    
+    with connect(test_db) as con:
+        row = con.execute(BOOK_ID_QUERY, [isbn13]).fetchone()
+    return row['book_id']
+
+def assert_book_details(book_id, params = {}, keys_to_skip = []):
+    global test_db
+
+    BOOK_QUERY   = "SELECT * FROM book_view WHERE book_id IS ?;"
+    AUTHOR_QUERY = "SELECT * FROM authors   WHERE book_id IS ?;"
+    
+    with connect(test_db) as con:
+        book    = con.execute(BOOK_QUERY,   [book_id]).fetchone()
+        authors = con.execute(AUTHOR_QUERY, [book_id]).fetchall()
+
+    for key, expected in params.iteritems():
+        if key in keys_to_skip or key == 'authors':
+            continue
+        assert book[key] == expected
+
+    if 'authors' in params:
+        assert authors.sort() == params['authors'].sort()
     
 def test_model_init():
     db = OrderDB()
@@ -23,31 +49,11 @@ def test_book_insert():
     'pub_name': 'William Morrow',
     'authors': ['Neal Stephenson']}
 
-    BOOK_QUERY   = "SELECT * FROM book_view WHERE isbn13 IS :isbn13;"
-    AUTHOR_QUERY = "SELECT * FROM books NATURAL JOIN authors WHERE isbn13 IS :isbn13;"
-
     db = OrderDB(test_db)
     db.add_book(**TEST_PARAMS)
 
-    with connect(test_db) as con:
-        books = [row for row in con.execute(BOOK_QUERY, TEST_PARAMS)]
-        authors = [row for row in con.execute(AUTHOR_QUERY, TEST_PARAMS)]
-    
-    assert books is not None and len(books) == 1
-
-    for param, expected in TEST_PARAMS.iteritems():
-        if param == 'authors':
-            continue
-        result = books[0][param]
-        print 'Param: {}, Expected: {}, Result: {}'.format(param, expected, result)
-        assert expected == result
-
-    assert authors is not None and len(authors) == 1
-
-    author_names = [row['author'] for row in authors]
-    for author in TEST_PARAMS['authors']:
-        author_names.remove(author)
-    assert len(author_names) == 0
+    book_id = get_book_id(TEST_PARAMS['isbn13'])
+    assert_book_details(book_id, TEST_PARAMS)
 
 def test_book_update():
     global test_db
@@ -61,48 +67,28 @@ def test_book_update():
     'pub_name': 'William Morrow',
     'authors': ['Neal Stephenson']}
 
-    BOOK_QUERY = "SELECT * FROM book_view WHERE isbn13 IS :isbn13;"
-    AUTHOR_QUERY = "SELECT * FROM books NATURAL JOIN authors WHERE isbn13 IS :isbn13;"
+    book_id = get_book_id(TEST_PARAMS['old_isbn13'])
 
     db = OrderDB(test_db)
     db.update_book(**TEST_PARAMS)
 
-    with connect(test_db) as con:
-        books = [row for row in con.execute(BOOK_QUERY, TEST_PARAMS)]
-        authors = [row for row in con.execute(AUTHOR_QUERY, TEST_PARAMS)]
-        
-    skip_list = set(['old_isbn13', 'authors'])
-    for param, expected in TEST_PARAMS.iteritems():
-        if param in skip_list:
-            continue
-        result = books[0][param]
-        print 'Param: {}, Expected: {}, Result: {}'.format(param, expected, result)
-        assert expected == result
-
-    assert authors is not None and len(authors) == 1
-
-    author_names = [row['author'] for row in authors]
-    for author in TEST_PARAMS['authors']:
-        author_names.remove(author)
-    assert len(author_names) == 0
+    assert_book_details(book_id, TEST_PARAMS, ['old_isbn13'])
 
 def test_book_delete():
     global test_db
 
-    params = {'isbn13': '9780061474096'}
+    TEST_PARAMS = {'isbn13': '9780061474096'}
 
-    BOOK_QUERY    = "SELECT * FROM book_view WHERE isbn13 IS :isbn13;"
-    AUTHOR_QUERY  = "SELECT * FROM authors WHERE book_id IS :book_id;"
-    BOOK_ID_QUERY = "SELECT book_id FROM books WHERE isbn13 IS :isbn13;"
+    BOOK_QUERY   = "SELECT * FROM book_view WHERE book_id IS ?;"
+    AUTHOR_QUERY = "SELECT * FROM authors   WHERE book_id IS ?;"
 
-    with connect(test_db) as con:
-        params['book_id'] = con.execute(BOOK_ID_QUERY, params).fetchone()['book_id']
+    book_id = get_book_id(TEST_PARAMS['isbn13'])
 
     db = OrderDB(test_db)
-    db.delete_book(params['isbn13'])
+    db.delete_book(TEST_PARAMS['isbn13'])
 
     with connect(test_db) as con:
-        books = [row for row in con.execute(BOOK_QUERY, params)]
-        authors = [row for row in con.execute(AUTHOR_QUERY, params)]
+        books = [row for row in con.execute(BOOK_QUERY, [book_id])]
+        authors = [row for row in con.execute(AUTHOR_QUERY, [book_id])]
 
     assert len(books) == len(authors) == 0
