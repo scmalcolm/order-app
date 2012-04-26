@@ -53,4 +53,6 @@ CREATE TRIGGER book_view_update INSTEAD OF UPDATE ON book_view BEGIN
     WHERE book_id IS OLD.book_id;
     END;
 
-
+CREATE TRIGGER book_view_delete INSTEAD OF DELETE ON book_view BEGIN
+    DELETE FROM books WHERE book_id IS OLD.book_id;
+    END;

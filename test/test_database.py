@@ -47,7 +47,7 @@ def test_book_view_insert():
     VALUES
     (:isbn13, :title, :binding, :location, :pub_name);"""
     EXPECTED = {
-        'isbn13': '9780199535545',
+        'isbn13': '9780199535544',
         'title': 'Northanger Abbey the book',
         'binding': 'Cloth',
         'location': 'History',
@@ -62,17 +62,30 @@ def test_book_view_insert():
 def test_book_view_update():
     global test_db
     UPDATE = """UPDATE book_view SET
-    title = :title, binding = :binding, location = :location, pub_name = :pub_name
-    WHERE isbn13 = :isbn13;"""
+    isbn13 = :isbn13, title = :title, binding = :binding, location = :location, pub_name = :pub_name
+    WHERE isbn13 = :old_isbn13;"""
     EXPECTED = {
         'isbn13': '9780199535545',
         'title': 'Northanger Abbey',
         'binding': 'Paper',
         'location': 'Fiction',
-        'pub_name': 'Oxford'}
+        'pub_name': 'Oxford',
+        'old_isbn13': '9780199535544'}
     QUERY = "SELECT * FROM book_view WHERE isbn13 IS :isbn13;"
     with test_db:
         test_db.execute(UPDATE, EXPECTED)
         result = test_db.execute(QUERY, EXPECTED).fetchone()
     for (key, value) in EXPECTED.iteritems():
+        if key == 'old_isbn13':
+            continue
         assert value == result[key]
+
+def test_book_view_delete():
+    global test_db
+    DELETE = "DELETE FROM book_view WHERE isbn13 IS :isbn13;"
+    QUERY = "SELECT * FROM book_view WHERE isbn13 IS :isbn13;"
+    PARAMS = {'isbn13': '97801995355'}
+    with test_db:
+        test_db.execute(DELETE, PARAMS)
+        result = test_db.execute(QUERY, PARAMS).fetchone()
+    assert result is None
