@@ -53,6 +53,6 @@ def test_book_view_insert():
     QUERY = "SELECT * FROM book_view WHERE isbn13 IS :isbn13;"
     with test_db:
         test_db.execute(INSERT, EXPECTED)
-        result = test_db.execute(QUERY, EXPECTED)
+        result = test_db.execute(QUERY, EXPECTED).fetchone()
     for (key, value) in EXPECTED.iteritems():
         assert value == result[key]
