@@ -23,19 +23,9 @@ def test_book_insert():
     'pub_name': 'William Morrow',
     'authors': ['Neal Stephenson']}
 
-    BOOK_QUERY = """SELECT * FROM
-    books NATURAL JOIN
-    publishers NATURAL JOIN
-    bindings NATURAL JOIN
-    locations
-    WHERE isbn13 IS :isbn13;
-    """
+    BOOK_QUERY = "SELECT * FROM book_view WHERE isbn13 IS :isbn13;"
 
-    AUTHOR_QUERY = """SELECT * FROM
-    books NATURAL JOIN
-    authors
-    WHERE isbn13 IS :isbn13;
-    """
+    AUTHOR_QUERY = "SELECT * FROM books NATURAL JOIN authors WHERE isbn13 IS :isbn13;"
 
     db = OrderDB(test_db)
     db.add_book(**TEST_PARAMS)

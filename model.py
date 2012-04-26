@@ -11,24 +11,15 @@ class OrderDB:
 
     def add_book(self, isbn13, title, binding, location, pub_name, authors = None):
         """add a new book to the database"""
-        BOOK_INSERT_QUERY = """
-        INSERT INTO books
-        (isbn13, title, binding_id, location_id, pub_id)
-        SELECT
-        :isbn13, :title, binding_id, location_id, pub_id
-        FROM bindings, publishers ON pub_name IS :pub_name,
-        locations ON location IS :location
-        WHERE binding IS :binding
-        LIMIT 1;
-        """
-        AUTHOR_INSERT_QUERY = """
-        INSERT INTO authors (author, book_id)
+        BOOK_INSERT_QUERY = """INSERT INTO book_view
+        (isbn13, title, binding, location, pub_name)
+        VALUES
+        (:isbn13, :title, :binding, :location, :pub_name);"""
+        AUTHOR_INSERT_QUERY = """INSERT INTO authors
+        (author, book_id)
         SELECT
         ?, book_id
-        FROM books
-        WHERE isbn13 IS ?
-        LIMIT 1;
-        """
+        FROM books WHERE isbn13 IS ? LIMIT 1;"""
         query_params = {
         'isbn13': isbn13,
         'title': title,
