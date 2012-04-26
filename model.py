@@ -3,11 +3,10 @@ import sqlite3
 class OrderDB:
     def __init__(self, db_path=':memory:'):
         """initialize the database connection"""
-        try:
-            self.db_connection = sqlite3.connect(db_path)
-        except sqlite3.Error, e:
-            print "Cannot connect to database: {}",format(db_path)
-            print "Error: {}".format(e.args[0])
+        with sqlite3.connect(db_path) as connection:
+            connection.row_factory = sqlite3.Row
+            connection.execute('PRAGMA foreign_keys = ON;')
+            self.db_connection = connection
 
     def add_book(self, isbn13, title, binding, location, pub_name, authors = None):
         """add a new book to the database"""
@@ -35,3 +34,9 @@ class OrderDB:
                 print 'Book insert successful.'
         except sqlite3.Error, e:
             print "Error: {}".format(e.args[0])
+
+    def delete_book(self, isbn13):
+        """remove a book from the database"""
+        BOOK_DELETE_QUERY = "DELETE FROM books WHERE isbn13 IS ?;"
+        with self.db_connection as connection:
+            connection.execute(BOOK_DELETE_QUERY, [isbn13])
