@@ -68,10 +68,10 @@ def test_book_update():
     TEST_PARAMS = {
     'old_isbn13': '9780061474095',
     'isbn13'    : '9780061474096',
-    'title'     : 'Anathem',
-    'binding'   : 'Cloth',
-    'location'  : 'Fiction',
-    'pub_name'  : 'William Morrow',
+    'title'     : 'Cuba',
+    'binding'   : 'Paper',
+    'location'  : 'History',
+    'pub_name'  : 'Oxford',
     'authors'   : ['Neal Stephenson'],
     'skip list' : ['old_isbn13']}
 
