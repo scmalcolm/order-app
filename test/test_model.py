@@ -99,8 +99,6 @@ def test_book_delete():
 
     book_id = get_book_id(TEST_PARAMS['isbn13'])
     assert book_id is not None
-
     db = OrderDB(test_db_path)
     db.delete_book(TEST_PARAMS['isbn13'])
-
     assert check_book_details(book_id, None)
