@@ -5,11 +5,9 @@ from ..model import *
 test_db_path = "db/test.sqlite3"
 
 def setup():
-    global test_db_path
     prepare_test_database(test_db_path)
 
 def get_book_id(isbn13):
-    global test_db_path
     BOOK_ID_QUERY = "SELECT book_id FROM books WHERE isbn13 IS ?;"
     
     with connect(test_db_path) as con:
@@ -18,7 +16,6 @@ def get_book_id(isbn13):
     return row['book_id']
 
 def assert_book_details(book_id, params = {}):
-    global test_db_path
     ABSENCE_KEY, SKIP_LIST_KEY = 'no such book', 'skip list'
     keys_to_skip = ['authors', ABSENCE_KEY, SKIP_LIST_KEY]
     keys_to_skip.extend(params.get('skip list', []))
@@ -45,8 +42,6 @@ def assert_book_details(book_id, params = {}):
         assert authors.sort() == params['authors'].sort()
 
 def get_book_details(book_id):
-    global test_db_path
-
     BOOK_QUERY   = "SELECT * FROM book_view WHERE book_id IS ?;"
     AUTHOR_QUERY = "SELECT * FROM authors   WHERE book_id IS ?;"
 
@@ -63,8 +58,6 @@ def test_model_init():
     db = OrderDB(test_db_path)
 
 def test_book_insert():
-    global test_db_path
-
     TEST_PARAMS = {
     'isbn13'  : '9780061474095',
     'title'   : 'Anathem',
@@ -80,8 +73,6 @@ def test_book_insert():
     assert_book_details(book_id, TEST_PARAMS)
 
 def test_book_update():
-    global test_db_path
-
     TEST_PARAMS = {
     'old_isbn13': '9780061474095',
     'isbn13'    : '9780061474096',
@@ -100,8 +91,6 @@ def test_book_update():
     assert_book_details(book_id, TEST_PARAMS)
 
 def test_book_update_individual_fields():
-    global test_db_path
-
     TEST_PARAMS = {
     'old_isbn13': '9780061474096',
     'isbn13'    : '9780061474097',
@@ -129,8 +118,6 @@ def test_book_update_individual_fields():
         assert_book_details(book_id, expected_values)
 
 def test_book_delete():
-    global test_db_path
-
     TEST_PARAMS = {'isbn13': '9780061474097', 'no such book': True}
 
     book_id = get_book_id(TEST_PARAMS['isbn13'])

@@ -10,24 +10,20 @@ def setup():
 
 def teardown():
     """destroy in-memory database"""
-    global test_db
     test_db.close()
 
 def test_connection():
-    global test_db
     with test_db:
         result = test_db.execute("SELECT SQLITE_VERSION()").fetchone()
     assert result[0] == "3.7.10"
 
 def test_data_present():
-    global test_db
     QUERY = "SELECT fax FROM distributors WHERE dist_name IS 'Oxford';"
     with test_db:
         result = test_db.execute(QUERY).fetchone()
     assert result[0] == "(555)555-0002"
 
 def test_book_view():
-    global test_db
     QUERY = "SELECT * FROM book_view WHERE isbn13 IS :isbn13;"
     EXPECTED = {
         'isbn13': '9780199535569',
@@ -41,7 +37,6 @@ def test_book_view():
         assert value == result[key]
 
 def test_book_view_insert():
-    global test_db
     INSERT = """INSERT INTO book_view
     (isbn13, title, binding, location, pub_name)
     VALUES
@@ -60,7 +55,6 @@ def test_book_view_insert():
         assert value == result[key]
 
 def test_book_view_update():
-    global test_db
     UPDATE = """UPDATE book_view SET
     isbn13 = :isbn13, title = :title, binding = :binding, location = :location, pub_name = :pub_name
     WHERE isbn13 = :old_isbn13;"""
@@ -81,7 +75,6 @@ def test_book_view_update():
         assert value == result[key]
 
 def test_book_view_delete():
-    global test_db
     DELETE = "DELETE FROM book_view WHERE isbn13 IS :isbn13;"
     QUERY = "SELECT * FROM book_view WHERE isbn13 IS :isbn13;"
     PARAMS = {'isbn13': '97801995355'}
