@@ -1,5 +1,5 @@
 import sqlite3
-from db_helper import prepare_test_database
+from db_helper import prepare_test_database, execute_sql, row_to_dict
 
 test_db = None
 
@@ -82,3 +82,21 @@ def test_book_view_delete():
         test_db.execute(DELETE, PARAMS)
         result = test_db.execute(QUERY, PARAMS).fetchone()
     assert result is None
+
+def test_order_headers():
+    QUERY = "SELECT * FROM order_headers WHERE po IS :po;"
+    EXPECTED = {
+        'po': '1A2100',
+        'order_date': '2012-01-01',
+        'ship_method': 'Ususal Means',
+        'dist_name': 'Oxford',
+        'address': '123 fake street',
+        'phone': '(555)555-0001',
+        'fax': '(555)555-0002',
+        'account_no': '42',
+        'sales_rep': 'Steve',
+        'comment': 'No Backorders'}
+    result = execute_sql(test_db, QUERY, EXPECTED)
+    assert result is not None and len(result) == 1
+    result = row_to_dict(result[0])
+    assert result == EXPECTED

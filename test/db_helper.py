@@ -29,3 +29,18 @@ def prepare_test_database(db = ":memory:"):
         connection.executescript(insert_data_sql)
         connection.executescript(create_views_sql)
         return connection
+
+def execute_sql(db_connection, statement, parameters):
+    try:
+        with db_connection:
+            result = db_connection.execute(statement, parameters).fetchall()
+    except sqlite3.Error, e:
+        print "Error: {}".format(e.args[0])
+    return result
+
+def row_to_dict(row):
+    if row is None: return None
+    result = {}
+    for key in row.keys():
+        result[key] = row[key]
+    return result

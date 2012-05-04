@@ -10,9 +10,7 @@ class OrderDB:
 
     def add_book(self, isbn13, title, binding, location, pub_name, authors = None):
         """add a new book to the database"""
-        BOOK_INSERT_SQL = """INSERT INTO book_view
-        (isbn13, title, binding, location, pub_name)
-        VALUES
+        BOOK_INSERT_SQL = """INSERT INTO book_view VALUES
         (:isbn13, :title, :binding, :location, :pub_name);"""
         AUTHOR_INSERT_SQL = """INSERT INTO authors
         (author, book_id)
@@ -26,18 +24,16 @@ class OrderDB:
         'location': location,
         'pub_name': pub_name
         }
-        print 'Begin book insertion: {}'.format(repr(query_params))
         try:
             with self.db_connection as connection:
                 connection.execute(BOOK_INSERT_SQL, query_params)   
                 connection.executemany(AUTHOR_INSERT_SQL, [(n, isbn13) for n in authors])
-                print 'Book insert successful.'
         except sqlite3.Error, e:
             print "Error: {}".format(e.args[0])
 
     def delete_book(self, isbn13):
         """remove a book from the database"""
-        BOOK_DELETE_SQL = "DELETE FROM books WHERE isbn13 IS ?;"
+        BOOK_DELETE_SQL = "DELETE FROM book_view WHERE isbn13 IS ?;"
         with self.db_connection as connection:
             connection.execute(BOOK_DELETE_SQL, [isbn13])
 
