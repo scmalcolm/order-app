@@ -6,7 +6,6 @@ test_db_path = "db/test.sqlite3"
 BOOK_QUERY   = "SELECT * FROM book_view WHERE book_id IS ?;"
 AUTHOR_QUERY = "SELECT * FROM authors   WHERE book_id IS ?;"
 BOOK_ID_QUERY = "SELECT book_id FROM books WHERE isbn13 IS ?;"
-BOOK_PROPERTIES = set(['isbn13', 'title', 'binding', 'location', 'pub_name'])
 
 def setup():
     prepare_test_database(test_db_path)
