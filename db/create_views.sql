@@ -23,7 +23,7 @@ CREATE VIEW order_entries AS
 
 CREATE VIEW book_view AS
     SELECT
-        book_id, isbn13, title, binding, location, pub_name
+        isbn13, title, binding, location, pub_name
     FROM
         books       NATURAL JOIN
         bindings    NATURAL JOIN
@@ -50,9 +50,9 @@ CREATE TRIGGER book_view_update INSTEAD OF UPDATE ON book_view BEGIN
     binding_id = (SELECT binding_id FROM bindings WHERE binding IS NEW.binding),
     location_id = (SELECT location_id FROM locations WHERE location IS NEW.location),
     pub_id = (SELECT pub_id FROM publishers WHERE pub_name IS NEW.pub_name)
-    WHERE book_id IS OLD.book_id;
+    WHERE isbn13 IS OLD.isbn13;
     END;
 
 CREATE TRIGGER book_view_delete INSTEAD OF DELETE ON book_view BEGIN
-    DELETE FROM books WHERE book_id IS OLD.book_id;
+    DELETE FROM books WHERE isbn13 IS OLD.isbn13;
     END;
