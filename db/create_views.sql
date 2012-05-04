@@ -4,12 +4,36 @@ DROP VIEW IF EXISTS book_view;
 
 CREATE VIEW order_headers AS
     SELECT DISTINCT
-        po, order_date, ship_method, dist_name,
-        address, phone, fax, account_no, sales_rep, comment
+        po, order_date, ship_method, dist_name, comment
     FROM 
         orders       NATURAL JOIN
         distributors NATURAL JOIN
         ship_methods;
+
+CREATE TRIGGER order_headers_insert INSTEAD OF INSERT ON order_headers BEGIN
+    INSERT INTO orders
+        (po, order_date, ship_id, dist_id, comment)
+        SELECT
+        NEW.po, NEW.order_date, ship_id, dist_id, NEW.comment
+        FROM
+        ship_methods, distributors ON dist_name IS NEW.dist_name
+        WHERE ship_method IS NEW.ship_method
+        LIMIT 1;
+    END;
+
+CREATE TRIGGER order_headers_update INSTEAD OF UPDATE ON order_headers BEGIN
+    UPDATE orders SET
+    po = NEW.po,
+    order_date = NEW.order_date,
+    ship_id = (SELECT ship_id FROM ship_methods WHERE ship_method IS NEW.ship_method),
+    comment = NEW.comment,
+    dist_id = (SELECT dist_id FROM distributors WHERE dist_name IS NEW.dist_name)
+    WHERE po is OLD.po;
+    END;
+
+CREATE TRIGGER order_headers_delete INSTEAD OF DELETE ON order_headers BEGIN
+    DELETE FROM orders WHERE po IS OLD.po;
+    END;
 
 CREATE VIEW order_entries AS
     SELECT

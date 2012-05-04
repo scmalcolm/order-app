@@ -33,9 +33,12 @@ def prepare_test_database(db = ":memory:"):
 def execute_sql(db_connection, statement, parameters):
     try:
         with db_connection:
-            result = db_connection.execute(statement, parameters).fetchall()
+            rows = db_connection.execute(statement, parameters).fetchall()
     except sqlite3.Error, e:
         print "Error: {}".format(e.args[0])
+    result = []
+    for row in rows:
+        result.append(row_to_dict(row))
     return result
 
 def row_to_dict(row):

@@ -31,15 +31,10 @@ def test_book_view():
         'binding': 'Paper',
         'location': 'Fiction',
         'pub_name': 'Oxford'}
-    with test_db:
-        result = test_db.execute(QUERY, EXPECTED).fetchone()
-    for (key, value) in EXPECTED.iteritems():
-        assert value == result[key]
+    assert execute_sql(test_db, QUERY, EXPECTED) == [EXPECTED]
 
 def test_book_view_insert():
-    INSERT = """INSERT INTO book_view
-    (isbn13, title, binding, location, pub_name)
-    VALUES
+    ACTION = """INSERT INTO book_view VALUES
     (:isbn13, :title, :binding, :location, :pub_name);"""
     EXPECTED = {
         'isbn13': '9780199535544',
@@ -48,55 +43,95 @@ def test_book_view_insert():
         'location': 'History',
         'pub_name': 'Penguin'}
     QUERY = "SELECT * FROM book_view WHERE isbn13 IS :isbn13;"
-    with test_db:
-        test_db.execute(INSERT, EXPECTED)
-        result = test_db.execute(QUERY, EXPECTED).fetchone()
-    for (key, value) in EXPECTED.iteritems():
-        assert value == result[key]
+    execute_sql(test_db, ACTION, EXPECTED)
+    assert execute_sql(test_db, QUERY, EXPECTED) == [EXPECTED]
 
 def test_book_view_update():
-    UPDATE = """UPDATE book_view SET
+    ACTION = """UPDATE book_view SET
     isbn13 = :isbn13, title = :title, binding = :binding, location = :location, pub_name = :pub_name
     WHERE isbn13 = :old_isbn13;"""
-    EXPECTED = {
+    QUERY = "SELECT * FROM book_view WHERE isbn13 IS :isbn13;"
+    PARAMS = {
         'isbn13': '9780199535545',
         'title': 'Northanger Abbey',
         'binding': 'Paper',
         'location': 'Fiction',
         'pub_name': 'Oxford',
         'old_isbn13': '9780199535544'}
-    QUERY = "SELECT * FROM book_view WHERE isbn13 IS :isbn13;"
-    with test_db:
-        test_db.execute(UPDATE, EXPECTED)
-        result = test_db.execute(QUERY, EXPECTED).fetchone()
-    for (key, value) in EXPECTED.iteritems():
-        if key == 'old_isbn13':
-            continue
-        assert value == result[key]
+    EXPECTED = {
+        'isbn13': '9780199535545',
+        'title': 'Northanger Abbey',
+        'binding': 'Paper',
+        'location': 'Fiction',
+        'pub_name': 'Oxford'}
+    execute_sql(test_db, ACTION, PARAMS)
+    assert execute_sql(test_db, QUERY, PARAMS) == [EXPECTED]
 
 def test_book_view_delete():
-    DELETE = "DELETE FROM book_view WHERE isbn13 IS :isbn13;"
+    ACTION = "DELETE FROM book_view WHERE isbn13 IS :isbn13;"
     QUERY = "SELECT * FROM book_view WHERE isbn13 IS :isbn13;"
     PARAMS = {'isbn13': '97801995355'}
-    with test_db:
-        test_db.execute(DELETE, PARAMS)
-        result = test_db.execute(QUERY, PARAMS).fetchone()
-    assert result is None
+    execute_sql(test_db, ACTION, PARAMS)
+    assert execute_sql(test_db, QUERY, PARAMS) == []
 
 def test_order_headers():
     QUERY = "SELECT * FROM order_headers WHERE po IS :po;"
+    PARAMS = {'po': '1A2100'}
     EXPECTED = {
         'po': '1A2100',
         'order_date': '2012-01-01',
         'ship_method': 'Ususal Means',
         'dist_name': 'Oxford',
-        'address': '123 fake street',
-        'phone': '(555)555-0001',
-        'fax': '(555)555-0002',
-        'account_no': '42',
-        'sales_rep': 'Steve',
         'comment': 'No Backorders'}
-    result = execute_sql(test_db, QUERY, EXPECTED)
-    assert result is not None and len(result) == 1
-    result = row_to_dict(result[0])
-    assert result == EXPECTED
+    assert execute_sql(test_db, QUERY, EXPECTED) == [EXPECTED]
+
+def test_order_headers_insert():
+    ACTION = """INSERT INTO order_headers VALUES
+    (:po, :order_date, :ship_method, :dist_name, :comment);"""
+    QUERY = "SELECT * FROM order_headers WHERE po IS :po;"
+    PARAMS = {
+        'po': '1A2101',
+        'order_date': '2012-01-01',
+        'ship_method': 'Air',
+        'dist_name': 'Penguin',
+        'comment': 'Extra Backorders'}
+    EXPECTED = {
+        'po': '1A2101',
+        'order_date': '2012-01-01',
+        'ship_method': 'Air',
+        'dist_name': 'Penguin',
+        'comment': 'Extra Backorders'}
+    execute_sql(test_db, ACTION, PARAMS)
+    assert execute_sql(test_db, QUERY, PARAMS) == [EXPECTED]
+
+def test_order_headers_update():
+    ACTION = """UPDATE order_headers SET
+        po = :po,
+        order_date = :order_date,
+        ship_method = :ship_method,
+        dist_name = :dist_name,
+        comment = :comment
+        WHERE po is :old_po;"""
+    QUERY = "SELECT * FROM order_headers WHERE po IS :po;"
+    PARAMS = {
+        'po': '1A2102',
+        'order_date': '2010-01-01',
+        'ship_method': 'UPS',
+        'dist_name': 'Oxford',
+        'comment': 'Nonsense',
+        'old_po': '1A2101'}
+    EXPECTED = {
+        'po': '1A2102',
+        'order_date': '2010-01-01',
+        'ship_method': 'UPS',
+        'dist_name': 'Oxford',
+        'comment': 'Nonsense'}
+    execute_sql(test_db, ACTION, PARAMS)
+    assert execute_sql(test_db, QUERY, PARAMS) == [EXPECTED]
+
+def test_book_view_delete():
+    ACTION = "DELETE FROM order_headers WHERE po IS :po;"
+    QUERY = "SELECT * FROM order_headers WHERE po IS :po;"
+    PARAMS = {'po': '1A2102'}
+    execute_sql(test_db, ACTION, PARAMS)
+    assert execute_sql(test_db, QUERY, PARAMS) == []
