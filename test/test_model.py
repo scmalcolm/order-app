@@ -3,9 +3,11 @@ from db_helper import prepare_test_database, connect
 from ..model import *
 
 test_db_path = "db/test.sqlite3"
-BOOK_QUERY   = "SELECT * FROM book_view NATURAL JOIN (SELECT book_id, isbn13 FROM books) WHERE book_id IS ?;"
-AUTHOR_QUERY = "SELECT * FROM authors   WHERE book_id IS ?;"
 BOOK_ID_QUERY = "SELECT book_id FROM books WHERE isbn13 IS ?;"
+AUTHOR_QUERY = "SELECT author FROM authors   WHERE book_id IS ?;"
+BOOK_QUERY   = """SELECT isbn13, title, binding, location, pub_name
+    FROM book_view NATURAL JOIN (SELECT book_id, isbn13 FROM books)
+    WHERE book_id IS ?;"""
 
 def setup():
     prepare_test_database(test_db_path)
