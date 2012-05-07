@@ -129,7 +129,7 @@ def test_order_headers_update():
     execute_sql(test_db, ACTION, PARAMS)
     assert execute_sql(test_db, QUERY, PARAMS) == [EXPECTED]
 
-def test_book_view_delete():
+def test_order_headers_delete():
     ACTION = "DELETE FROM order_headers WHERE po IS :po;"
     QUERY = "SELECT * FROM order_headers WHERE po IS :po;"
     PARAMS = {'po': '1A2102'}
