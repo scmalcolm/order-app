@@ -45,6 +45,17 @@ CREATE VIEW order_entries AS
         publishers       NATURAL JOIN
         bindings;
 
+CREATE TRIGGER order_entries_insert INSTEAD OF INSERT ON order_entries BEGIN
+    INSERT INTO order_quantities
+        (order_id, book_id, quantity)
+        SELECT
+        order_id, book_id, NEW.quantity
+        FROM
+        orders, books ON isbn13 is NEW.isbn13
+        WHERE po is NEW.po
+        LIMIT 1;
+    END;
+
 CREATE VIEW book_view AS
     SELECT
         isbn13, title, binding, location, pub_name

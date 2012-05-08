@@ -140,3 +140,13 @@ def test_order_entries():
     QUERY = "SELECT * FROM order_entries;"
     EXPECTED = {'po': '1A2100', 'isbn13': '9780199535569', 'quantity': 5}
     assert execute_sql(test_db, QUERY, {}) == [EXPECTED]
+
+def test_order_entries_insert():
+    ACTION = "INSERT INTO order_entries VALUES (:po, :isbn13, :quantity);"
+    QUERY = "SELECT * FROM order_entries WHERE po IS :po;"
+    PARAMS = {'po': '1A2100', 'isbn13': '9780199537167', 'quantity': 3}
+    EXPECTED = [
+        {'po': '1A2100', 'isbn13': '9780199535569', 'quantity': 5},
+        {'po': '1A2100', 'isbn13': '9780199537167', 'quantity': 3}]
+    execute_sql(test_db, ACTION, PARAMS)
+    assert execute_sql(test_db, QUERY, PARAMS) == EXPECTED

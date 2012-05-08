@@ -75,11 +75,26 @@ INSERT INTO books
     WHERE binding IS "Paper"
     LIMIT 1;
 
+INSERT INTO books
+    (isbn13, title, binding_id, location_id, pub_id)
+    SELECT
+    "9780199537167", "Frankenstein", binding_id, location_id, pub_id
+    FROM bindings, publishers ON pub_name IS "Oxford", locations ON location IS "Fiction"
+    WHERE binding IS "Paper"
+    LIMIT 1;
+
 INSERT INTO authors
     (author, book_id)
     SELECT
     "Jane Austen", book_id
     FROM books WHERE isbn13 IS "9780199535569"
+    LIMIT 1;
+
+INSERT INTO authors
+    (author, book_id)
+    SELECT
+    "Mary Shelley", book_id
+    FROM books WHERE isbn13 IS "9780199537167"
     LIMIT 1;
 
 INSERT INTO orders
