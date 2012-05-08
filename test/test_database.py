@@ -135,3 +135,8 @@ def test_order_headers_delete():
     PARAMS = {'po': '1A2102'}
     execute_sql(test_db, ACTION, PARAMS)
     assert execute_sql(test_db, QUERY, PARAMS) == []
+
+def test_order_entries():
+    QUERY = "SELECT * FROM order_entries;"
+    EXPECTED = {'po': '1A2100', 'isbn13': '9780199535569', 'quantity': 5}
+    assert execute_sql(test_db, QUERY, {}) == [EXPECTED]

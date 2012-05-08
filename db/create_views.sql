@@ -37,7 +37,7 @@ CREATE TRIGGER order_headers_delete INSTEAD OF DELETE ON order_headers BEGIN
 
 CREATE VIEW order_entries AS
     SELECT
-        po, isbn13, title, quantity, pub_name, binding
+        po, isbn13, quantity
     FROM
         books            NATURAL JOIN
         orders           NATURAL JOIN
