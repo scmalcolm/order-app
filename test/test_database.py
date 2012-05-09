@@ -150,3 +150,21 @@ def test_order_entries_insert():
         {'po': '1A2100', 'isbn13': '9780199537167', 'quantity': 3}]
     execute_sql(test_db, ACTION, PARAMS)
     assert execute_sql(test_db, QUERY, PARAMS) == EXPECTED
+
+def test_order_entries_update():
+    ACTION = "UPDATE order_entries SET quantity = :quantity WHERE isbn13 IS :isbn13 AND po IS :po;"
+    QUERY = "SELECT * FROM order_entries WHERE po IS :po;"
+    PARAMS = {'po': '1A2100', 'isbn13': '9780199537167', 'quantity': 19}
+    EXPECTED = [
+        {'po': '1A2100', 'isbn13': '9780199535569', 'quantity': 5},
+        {'po': '1A2100', 'isbn13': '9780199537167', 'quantity': 19}]
+    execute_sql(test_db, ACTION, PARAMS)
+    assert execute_sql(test_db, QUERY, PARAMS) == EXPECTED
+
+def test_order_entries_delecte():
+    ACTION = "DELETE FROM order_entries WHERE isbn13 IS :isbn13 and po IS :po;"
+    QUERY = "SELECT * FROM order_entries WHERE po IS :po;"
+    PARAMS = {'po': '1A2100', 'isbn13': '9780199537167'}
+    EXPECTED = [{'po': '1A2100', 'isbn13': '9780199535569', 'quantity': 5}]
+    execute_sql(test_db, ACTION, PARAMS)
+    assert execute_sql(test_db, QUERY, PARAMS) == EXPECTED

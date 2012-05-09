@@ -23,11 +23,11 @@ CREATE TRIGGER order_headers_insert INSTEAD OF INSERT ON order_headers BEGIN
 
 CREATE TRIGGER order_headers_update INSTEAD OF UPDATE ON order_headers BEGIN
     UPDATE orders SET
-    po = NEW.po,
-    order_date = NEW.order_date,
-    ship_id = (SELECT ship_id FROM ship_methods WHERE ship_method IS NEW.ship_method),
-    comment = NEW.comment,
-    dist_id = (SELECT dist_id FROM distributors WHERE dist_name IS NEW.dist_name)
+        po = NEW.po,
+        order_date = NEW.order_date,
+        ship_id = (SELECT ship_id FROM ship_methods WHERE ship_method IS NEW.ship_method),
+        comment = NEW.comment,
+        dist_id = (SELECT dist_id FROM distributors WHERE dist_name IS NEW.dist_name)
     WHERE po is OLD.po;
     END;
 
@@ -55,6 +55,20 @@ CREATE TRIGGER order_entries_insert INSTEAD OF INSERT ON order_entries BEGIN
         WHERE po is NEW.po
         LIMIT 1;
     END;
+
+CREATE TRIGGER order_entries_update INSTEAD OF UPDATE ON order_entries BEGIN
+    UPDATE order_quantities SET
+        quantity = NEW.quantity
+    WHERE
+        order_id IS (SELECT order_id FROM orders WHERE po IS OLD.po) AND
+        book_id IS (SELECT book_id FROM books WHERE isbn13 IS OLD.isbn13);
+    END;
+
+CREATE TRIGGER order_entries_delete INSTEAD OF DELETE ON order_entries BEGIN
+    DELETE FROM order_quantities WHERE
+        order_id IS (SELECT order_id FROM orders WHERE po is OLD.po) AND
+        book_id IS (SELECT book_id FROM books WHERE isbn13 IS OLD.isbn13);
+    END; 
 
 CREATE VIEW book_view AS
     SELECT
