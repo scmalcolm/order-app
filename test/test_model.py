@@ -41,6 +41,13 @@ def test_model_init():
     db = OrderDB()
     db = OrderDB(test_db_path)
 
+def test_book_get():
+    TEST_PARAMS = {'isbn13': '9780199535569'}
+    book_id = get_book_id(TEST_PARAMS['isbn13'])
+    db = OrderDB(test_db_path)
+    reported_values = db.get_book(**TEST_PARAMS)
+    assert check_book_details(book_id, reported_values) 
+
 def test_book_insert():
     TEST_PARAMS = {
     'isbn13'  : '9780061474095',
