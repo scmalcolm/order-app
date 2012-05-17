@@ -10,7 +10,7 @@ class OrderDB:
 
     def get_book(self, isbn13):
         """rereive a book record from the database"""
-        AUTHOR_QUERY = "SELECT * FROM authors NATURAL JOIN (SELECT book_id, isbn13 FROM books) WHERE isbn13 IS ?;"
+        AUTHOR_QUERY = "SELECT * FROM author_view WHERE isbn13 IS ?;"
         BOOK_QUERY   = "SELECT * FROM book_view WHERE isbn13 IS ?;"
         with self.db_connection as con:
             book    = con.execute(BOOK_QUERY,   [isbn13]).fetchone()
@@ -25,11 +25,7 @@ class OrderDB:
         """add a new book to the database"""
         BOOK_INSERT_SQL = """INSERT INTO book_view VALUES
         (:isbn13, :title, :binding, :location, :pub_name);"""
-        AUTHOR_INSERT_SQL = """INSERT INTO authors
-        (author, book_id)
-        SELECT
-        ?, book_id
-        FROM books WHERE isbn13 IS ? LIMIT 1;"""
+        AUTHOR_INSERT_SQL = "INSERT INTO author_view VALUES (?, ?);"
         query_params = {
         'isbn13': isbn13,
         'title': title,
@@ -40,7 +36,7 @@ class OrderDB:
         try:
             with self.db_connection as connection:
                 connection.execute(BOOK_INSERT_SQL, query_params)   
-                connection.executemany(AUTHOR_INSERT_SQL, [(n, isbn13) for n in authors])
+                connection.executemany(AUTHOR_INSERT_SQL, [(isbn13, n) for n in authors])
         except sqlite3.Error, e:
             print "Error: {}".format(e.args[0])
 

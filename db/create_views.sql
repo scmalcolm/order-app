@@ -1,6 +1,7 @@
 DROP VIEW IF EXISTS order_headers;
 DROP VIEW IF EXISTS order_entries;
-DROP VIEW IF EXISTS book_view; 
+DROP VIEW IF EXISTS book_view;
+DROP VIEW IF EXISTS author_view;
 
 CREATE VIEW order_headers AS
     SELECT DISTINCT
@@ -104,4 +105,27 @@ CREATE TRIGGER book_view_update INSTEAD OF UPDATE ON book_view BEGIN
 
 CREATE TRIGGER book_view_delete INSTEAD OF DELETE ON book_view BEGIN
     DELETE FROM books WHERE isbn13 IS OLD.isbn13;
+    END;
+
+CREATE VIEW author_view AS
+    SELECT
+        isbn13, author
+    FROM
+        books NATURAL JOIN authors;
+
+CREATE TRIGGER author_view_delete INSTEAD OF DELETE ON author_view BEGIN
+    DELETE FROM authors WHERE
+        book_id IS (SELECT book_id FROM books WHERE isbn13 IS OLD.isbn13);
+    END;
+
+CREATE TRIGGER author_view_update INSTEAD OF UPDATE ON author_view BEGIN
+    UPDATE authors SET
+        author = NEW.author
+    WHERE book_id IS (SELECT book_id FROM books WHERE isbn13 IS OLD.isbn13);
+    END;
+
+CREATE TRIGGER author_view_insert INSTEAD OF INSERT ON author_view BEGIN
+    INSERT INTO authors (book_id, author)
+        SELECT book_id, NEW.author
+        FROM books WHERE book_id IS (SELECT book_id FROM books WHERE isbn13 IS NEW.isbn13);
     END;
