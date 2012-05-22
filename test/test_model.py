@@ -67,27 +67,14 @@ def test_book_insert():
 def test_book_update():
     TEST_PARAMS = {
     'isbn13'    : '9780061474096',
-    'title'     : 'Cuba',
-    'binding'   : 'Paper',
-    'location'  : 'History',
-    'pub_name'  : 'Oxford',
-    'authors'   : ['Neal Stephenson']}
-
-    book_id = get_book_id('9780061474095')
-    db = OrderDB(test_db_path)
-    db.update_book(old_isbn13 = '9780061474095', **TEST_PARAMS)
-    assert check_book_details(book_id, TEST_PARAMS)
-
-def test_book_update_individual_fields():
-    TEST_PARAMS = {
-    'isbn13'    : '9780061474097',
     'title'     : 'Out of Print',
     'binding'   : 'Spiral',
     'location'  : 'Philosophy',
     'pub_name'  : 'Penguin',
     'authors'   : ['Neal Stephenson']}
+    OLD_ISBN = '9780061474095'
 
-    book_id = get_book_id('9780061474096')
+    book_id = get_book_id(OLD_ISBN)
     expected_values = get_book_details(book_id)
     db = OrderDB(test_db_path)
     updates = [
@@ -98,12 +85,12 @@ def test_book_update_individual_fields():
     ('isbn13', db.update_isbn)]
     for key, update in updates:
         print "Update {}".format(key)
-        update('9780061474096', TEST_PARAMS[key])
+        update(OLD_ISBN, TEST_PARAMS[key])
         expected_values[key] = TEST_PARAMS[key]
         assert check_book_details(book_id, expected_values)
 
 def test_book_delete():
-    TEST_PARAMS = {'isbn13': '9780061474097'}
+    TEST_PARAMS = {'isbn13': '9780061474096'}
 
     book_id = get_book_id(TEST_PARAMS['isbn13'])
     assert book_id is not None

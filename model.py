@@ -46,19 +46,6 @@ class OrderDB:
         with self.db_connection as connection:
             connection.execute(BOOK_DELETE_SQL, [isbn13])
 
-    def update_book(self, **params):
-        """update a book record"""
-        BOOK_UPDATE_SQL = """UPDATE book_view SET
-        isbn13 = :isbn13,
-        title = :title,
-        binding = :binding,
-        location = :location,
-        pub_name = :pub_name
-        WHERE isbn13 is :old_isbn13;"""
-        
-        with self.db_connection as connection:
-            connection.execute(BOOK_UPDATE_SQL, params)
-
     def update_isbn(self, old_isbn13, isbn13):
         """update a book's 13-digit isbn"""
         UPDATE_SQL = "UPDATE book_view SET isbn13 = ? WHERE isbn13 IS ?;"
