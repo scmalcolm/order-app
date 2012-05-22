@@ -1,5 +1,11 @@
+.DS_Store
+
 # Ignore database instances
 db/*.sqlite3
 
 # Ignore compiled python
 *.pyc
+
+# Ignore bundled app and build intermediaries
+build/*
+dist/*
