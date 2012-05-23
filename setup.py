@@ -8,8 +8,21 @@ Usage:
 from setuptools import setup
 
 APP = ['app.py']
+APP_NAME = 'Order App'
+VERSION = '0.0.1'
 DATA_FILES = []
-OPTIONS = {'argv_emulation': True}
+PLIST = dict(
+            CFBundleName = APP_NAME,
+            CFBundleShortVersionString = VERSION,
+            CFBundleGetInfoString = "{} {}".format(APP_NAME, VERSION),
+            CFBundleExecutable = APP_NAME,
+            CFBundleIdentifier = "com.bmbr.order-app")
+OPTIONS = dict(
+            argv_emulation = True,
+            #iconfile = '',
+            packages = 'wx',
+            site_packages = True,
+            plist = PLIST)
 
 setup(
     app=APP,
