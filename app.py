@@ -69,7 +69,7 @@ class MainWindow(wx.Frame):
 
     def OnPrefs(self, event):
         dlg = wx.MessageDialog(self, "Set Preferences here, eventually",
-                               "Preferences, wx.OK | wx.ICON_INFORMATION")
+                               "Preferences", wx.OK | wx.ICON_INFORMATION)
         dlg.ShowModal()
         dlg.Destroy()
 
