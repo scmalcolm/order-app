@@ -1,4 +1,5 @@
 .DS_Store
+makeapp
 
 # Ignore database instances
 db/*.sqlite3
