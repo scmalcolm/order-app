@@ -6,6 +6,7 @@ db/*.sqlite3
 
 # Ignore compiled python
 *.pyc
+*.pyo
 
 # Ignore bundled app and build intermediaries
 build/*
