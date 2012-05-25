@@ -8,7 +8,7 @@ Usage:
 from setuptools import setup
 
 APP = ['app.py']
-APP_NAME = 'Order App'
+APP_NAME = 'OrderApp'
 VERSION = '0.0.1'
 DATA_FILES = []
 PLIST = dict(

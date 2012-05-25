@@ -1,0 +1,40 @@
+#!/bin/bash
+# Argument = -t test -r server -p password -v
+
+usage()
+{
+cat << EOF
+usage: $0 options
+
+This script creates an OSX Application
+
+OPTIONS:
+   -h      Show this message
+   -o      Open the application
+EOF
+}
+
+OPEN=
+while getopts “ho” OPTION
+do
+     case $OPTION in
+         h)
+             usage
+             exit 1
+             ;;
+         o)
+             OPEN=1
+             ;;
+         ?)
+             usage
+             exit
+             ;;
+     esac
+done
+
+rm -rf build/* dist/*
+python setup.py py2app -A
+
+if [[ $OPEN ]]; then
+    open dist/OrderApp.app/
+fi
