@@ -1,6 +1,6 @@
 import sqlite3
 from db_helper import prepare_test_database, connect
-from ..model import *
+from ..model import OrderDB, make_book
 
 test_db_path = "db/test.sqlite3"
 BOOK_ID_QUERY = "SELECT book_id FROM books WHERE isbn13 IS ?;"
@@ -21,18 +21,13 @@ def get_book_id(isbn13):
 def get_book_details(book_id):
     assert book_id is not None
     with connect(test_db_path) as con:
-        book    = con.execute(BOOK_QUERY,   [book_id]).fetchone()
-        authors = con.execute(AUTHOR_QUERY, [book_id]).fetchall()
-    result = {}
-    if book is not None:
-        result = {key: book[key] for key in book.keys() if not key == 'book_id'}
-    result['authors'] = [row['author'] for row in authors]
-    return result
+        book_row    = con.execute(BOOK_QUERY,   [book_id]).fetchone()
+        author_rows = con.execute(AUTHOR_QUERY, [book_id]).fetchall()
+    authors = [row['author'] for row in author_rows]
+    return make_book(book_row, authors)
 
 def check_book_details(book_id, expected):
     actual = get_book_details(book_id)
-    if expected is None:
-        return actual == {'authors': []}
     print "Expected: {}".format(expected)
     print "Actual:   {}".format(actual)
     return  expected == actual
@@ -62,20 +57,26 @@ def test_book_insert():
     db = OrderDB(test_db_path)
     db.add_book(**TEST_PARAMS)
     book_id = get_book_id(TEST_PARAMS['isbn13'])
-    assert check_book_details(book_id, TEST_PARAMS) 
+    assert check_book_details(book_id, make_book(TEST_PARAMS,
+                                                 TEST_PARAMS['authors']))
 
 def test_book_update():
     TEST_PARAMS = {
-    'isbn13'    : '9780061474096',
-    'title'     : 'Out of Print',
-    'binding'   : 'Spiral',
-    'location'  : 'Philosophy',
-    'pub_name'  : 'Penguin',
-    'authors'   : ['Neal Stephenson']}
+                    'isbn13'    : '9780061474096',
+                    'title'     : 'Out of Print',
+                    'binding'   : 'Spiral',
+                    'location'  : 'Philosophy',
+                    'pub_name'  : 'Penguin',
+                    'authors'   : ['Neal Stephenson']}
     OLD_ISBN = '9780061474095'
-
     book_id = get_book_id(OLD_ISBN)
-    expected_values = get_book_details(book_id)
+    expected_values = {
+                    'isbn13'  : '9780061474095',
+                    'title'   : 'Anathem',
+                    'binding' : 'Cloth',
+                    'location': 'Fiction',
+                    'pub_name': 'William Morrow'}
+    expected_authors =['Neal Stephenson']
     db = OrderDB(test_db_path)
     updates = [
     ('title', db.update_title),
@@ -87,7 +88,7 @@ def test_book_update():
         print "Update {}".format(key)
         update(OLD_ISBN, TEST_PARAMS[key])
         expected_values[key] = TEST_PARAMS[key]
-        assert check_book_details(book_id, expected_values)
+        assert check_book_details(book_id, make_book(expected_values, expected_authors))
 
 def test_book_delete():
     TEST_PARAMS = {'isbn13': '9780061474096'}

@@ -1,4 +1,5 @@
 import sqlite3
+from collections import namedtuple
 
 class OrderDB:
     def __init__(self, db_path=':memory:'):
@@ -13,13 +14,10 @@ class OrderDB:
         AUTHOR_QUERY = "SELECT * FROM author_view WHERE isbn13 IS ?;"
         BOOK_QUERY   = "SELECT * FROM book_view WHERE isbn13 IS ?;"
         with self.db_connection as con:
-            book    = con.execute(BOOK_QUERY,   [isbn13]).fetchone()
-            authors = con.execute(AUTHOR_QUERY, [isbn13]).fetchall()
-        result = {}
-        if book is not None:
-            result = {key: book[key] for key in book.keys()}
-        result['authors'] = [row['author'] for row in authors]
-        return result
+            book_row    = con.execute(BOOK_QUERY,   [isbn13]).fetchone()
+            author_rows = con.execute(AUTHOR_QUERY, [isbn13]).fetchall()
+        authors = [row['author'] for row in author_rows]
+        return make_book(book_row, authors)
 
     def add_book(self, isbn13, title, binding, location, pub_name, authors = None):
         """add a new book to the database"""
@@ -75,3 +73,16 @@ class OrderDB:
         UPDATE_SQL = "UPDATE book_view SET pub_name = ? WHERE isbn13 IS ?;"
         with self.db_connection as connection:
             connection.execute(UPDATE_SQL, (publisher, old_isbn13))
+
+keys = ['isbn13', 'title', 'binding', 'location', 'pub_name', 'authors']
+Book = namedtuple('Book', keys)
+
+def make_book(row, authors = None):
+    if row == None: return None
+    values = []
+    for key in keys:
+        if key == 'authors':
+            values.append(authors)
+        else:
+            values.append(row[key])
+    return Book._make(values)
