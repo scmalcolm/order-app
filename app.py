@@ -4,7 +4,6 @@ Bob Miller Book Room ordering application
 Copyright Simon Malcolm 2012
 '''
 import wx
-from wx import xrc
 import layout
 
 class MainWindow(layout.MainFrame):
@@ -15,6 +14,11 @@ class MainWindow(layout.MainFrame):
         
     def OnClose(self, event):
         if event.CanVeto():
+            dlg = wx.MessageDialog(self, "Really Quit?", "Quit?",
+                                   wx.YES_NO|wx.ICON_INFORMATION)
+            confirm = dlg.ShowModal() == wx.ID_YES
+            dlg.Destroy()
+        if event.CanVeto() and not confirm:
             event.Veto()
         else:
             self.Destroy()
@@ -64,7 +68,7 @@ class OrderApp(wx.App):
             self.BringWindowsToFront()
         event.Skip()
 
-    def MacOpenFile(sel, filename):
+    def MacOpenFile(self, filename):
         """Called for files dropped on dock icon or opened with context menu"""
         pass
 
