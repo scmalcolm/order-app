@@ -1,5 +1,9 @@
+'''
+Bob Miller Book Room ordering application
+
+Copyright Simon Malcolm 2012
+'''
 import sqlite3
-from collections import namedtuple
 
 class OrderDB:
     def __init__(self, db_path=':memory:'):
@@ -16,8 +20,7 @@ class OrderDB:
         with self.db_connection as con:
             book_row    = con.execute(BOOK_QUERY,   [isbn13]).fetchone()
             author_rows = con.execute(AUTHOR_QUERY, [isbn13]).fetchall()
-        authors = [row['author'] for row in author_rows]
-        return make_book(book_row, authors)
+        return make_book(book_row, author_rows)
 
     def add_book(self, isbn13, title, binding, location, pub_name, authors = None):
         """add a new book to the database"""
@@ -74,15 +77,11 @@ class OrderDB:
         with self.db_connection as connection:
             connection.execute(UPDATE_SQL, (publisher, old_isbn13))
 
-keys = ['isbn13', 'title', 'binding', 'location', 'pub_name', 'authors']
-Book = namedtuple('Book', keys)
+def make_book(book_row, author_rows = None):
+    if book_row == None: return None
+    book = {}
+    for key in ['isbn13', 'title', 'binding', 'location', 'pub_name']:
+        book[key] = book_row[key]
+    book['authors'] = [row['author'] for row in author_rows]
+    return book
 
-def make_book(row, authors = None):
-    if row == None: return None
-    values = []
-    for key in keys:
-        if key == 'authors':
-            values.append(authors)
-        else:
-            values.append(row[key])
-    return Book._make(values)

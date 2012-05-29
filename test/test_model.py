@@ -23,8 +23,7 @@ def get_book_details(book_id):
     with connect(test_db_path) as con:
         book_row    = con.execute(BOOK_QUERY,   [book_id]).fetchone()
         author_rows = con.execute(AUTHOR_QUERY, [book_id]).fetchall()
-    authors = [row['author'] for row in author_rows]
-    return make_book(book_row, authors)
+    return make_book(book_row, author_rows)
 
 def check_book_details(book_id, expected):
     actual = get_book_details(book_id)
@@ -57,8 +56,7 @@ def test_book_insert():
     db = OrderDB(test_db_path)
     db.add_book(**TEST_PARAMS)
     book_id = get_book_id(TEST_PARAMS['isbn13'])
-    assert check_book_details(book_id, make_book(TEST_PARAMS,
-                                                 TEST_PARAMS['authors']))
+    assert check_book_details(book_id, TEST_PARAMS)
 
 def test_book_update():
     TEST_PARAMS = {
@@ -70,13 +68,7 @@ def test_book_update():
                     'authors'   : ['Neal Stephenson']}
     OLD_ISBN = '9780061474095'
     book_id = get_book_id(OLD_ISBN)
-    expected_values = {
-                    'isbn13'  : '9780061474095',
-                    'title'   : 'Anathem',
-                    'binding' : 'Cloth',
-                    'location': 'Fiction',
-                    'pub_name': 'William Morrow'}
-    expected_authors =['Neal Stephenson']
+    expected_values = get_book_details(book_id)
     db = OrderDB(test_db_path)
     updates = [
     ('title', db.update_title),
@@ -88,7 +80,7 @@ def test_book_update():
         print "Update {}".format(key)
         update(OLD_ISBN, TEST_PARAMS[key])
         expected_values[key] = TEST_PARAMS[key]
-        assert check_book_details(book_id, make_book(expected_values, expected_authors))
+        assert check_book_details(book_id, expected_values)
 
 def test_book_delete():
     TEST_PARAMS = {'isbn13': '9780061474096'}
