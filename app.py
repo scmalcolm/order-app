@@ -54,6 +54,7 @@ class MainWindow(layout.MainFrame):
     def OnViewBooks(self, event):
         dlg = BookList(self)
         dlg.Show()
+        dlg.Raise()
 
 class BookList(layout.BookListFrame):
     def __init__(self, parent):
@@ -65,7 +66,7 @@ class BookList(layout.BookListFrame):
                       ColumnDefn("Binding",   valueGetter="binding"),
                       ColumnDefn("Location",  valueGetter="location")]
         self.bookList.SetColumns(columnList)
-        books = [wx.GetApp().model.get_book('9780199535569')]
+        books = wx.GetApp().model.get_books()
         self.bookList.SetObjects(books)
 
     def OnOKButtonClick(self, event):

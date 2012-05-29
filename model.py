@@ -22,6 +22,13 @@ class OrderDB:
             author_rows = con.execute(AUTHOR_QUERY, [isbn13]).fetchall()
         return make_book(book_row, author_rows)
 
+    def get_books(self, authors = False):
+        """retrieve all books from the database"""
+        BOOKS_QUERY = "SELECT * FROM book_view;"
+        with self.db_connection as con:
+            books = [make_book(row) for row in con.execute(BOOKS_QUERY)]
+        return books
+
     def add_book(self, isbn13, title, binding, location, pub_name, authors = None):
         """add a new book to the database"""
         BOOK_INSERT_SQL = """INSERT INTO book_view VALUES
@@ -82,6 +89,7 @@ def make_book(book_row, author_rows = None):
     book = {}
     for key in ['isbn13', 'title', 'binding', 'location', 'pub_name']:
         book[key] = book_row[key]
-    book['authors'] = [row['author'] for row in author_rows]
+    if author_rows is not None:
+        book['authors'] = [row['author'] for row in author_rows]
     return book
 
