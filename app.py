@@ -5,6 +5,10 @@ Copyright Simon Malcolm 2012
 '''
 import wx
 import layout
+import model
+from ObjectListView import ColumnDefn, ObjectListView
+
+db_path = "/Users/bmbr/db/test.sqlite3"
 
 class MainWindow(layout.MainFrame):
 
@@ -30,26 +34,49 @@ class MainWindow(layout.MainFrame):
     def OnAbout(self, event):
         dlg = wx.MessageDialog(self, "Bob Miller Book Room Orders\n"
                                "Application created by Simon Malcolm",
-                               "Order Application", wx.OK | wx.ICON_INFORMATION)
+                               "Order Application", wx.OK|wx.ICON_INFORMATION)
         dlg.ShowModal()
         dlg.Destroy()
 
     def OnHelp(self, event):
         dlg = wx.MessageDialog(self, "This would be help\n"
                                      "If there was any\n",
-                               "Help", wx.OK | wx.ICON_INFORMATION)
+                               "Help", wx.OK|wx.ICON_INFORMATION)
         dlg.ShowModal()
         dlg.Destroy()
 
     def OnPrefs(self, event):
         dlg = wx.MessageDialog(self, "Set Preferences here, eventually",
-                               "Preferences", wx.OK | wx.ICON_INFORMATION)
+                               "Preferences", wx.OK|wx.ICON_INFORMATION)
         dlg.ShowModal()
         dlg.Destroy()
 
+    def OnViewBooks(self, event):
+        dlg = BookList(self)
+        dlg.Show()
+
+class BookList(layout.BookListFrame):
+    """docstring for BookList"""
+    def __init__(self, parent):
+        super(BookList, self).__init__(parent)
+
+        columnList = [ColumnDefn("ISBN",      valueGetter="isbn13"),
+                      ColumnDefn("Title",     valueGetter="title"),
+                      ColumnDefn("Publisher", valueGetter="pub_name"),
+                      ColumnDefn("Binding",   valueGetter="binding"),
+                      ColumnDefn("Location",  valueGetter="location")]
+        self.bookList = ObjectListView(self, wx.ID_ANY, style=wx.LC_REPORT|wx.SUNKEN_BORDER)
+        self.listPanel.GetSizer().Add(self.bookList, 0, wx.ALL|wx.EXPAND, 5)
+        self.listPanel.Layout()
+
+        self.bookList.SetColumns(columnList)
+        books = [wx.GetApp().model.get_book('9780199535569')]
+        self.bookList.SetObjects(books)
+        
 class OrderApp(wx.App):
 
     def OnInit(self):
+        self.model = model.OrderDB(db_path)
         self.Bind(wx.EVT_ACTIVATE_APP, self.OnActivate)
         top = MainWindow(None)
         self.SetTopWindow(top)
