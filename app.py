@@ -56,7 +56,6 @@ class MainWindow(layout.MainFrame):
         dlg.Show()
 
 class BookList(layout.BookListFrame):
-    """docstring for BookList"""
     def __init__(self, parent):
         super(BookList, self).__init__(parent)
 
@@ -65,13 +64,12 @@ class BookList(layout.BookListFrame):
                       ColumnDefn("Publisher", valueGetter="pub_name"),
                       ColumnDefn("Binding",   valueGetter="binding"),
                       ColumnDefn("Location",  valueGetter="location")]
-        self.bookList = ObjectListView(self, wx.ID_ANY, style=wx.LC_REPORT|wx.SUNKEN_BORDER)
-        self.listPanel.GetSizer().Add(self.bookList, 0, wx.ALL|wx.EXPAND, 5)
-        self.listPanel.Layout()
-
         self.bookList.SetColumns(columnList)
         books = [wx.GetApp().model.get_book('9780199535569')]
         self.bookList.SetObjects(books)
+
+    def OnOKButtonClick(self, event):
+        self.Close()
         
 class OrderApp(wx.App):
 
