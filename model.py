@@ -4,6 +4,7 @@ Bob Miller Book Room ordering application
 Copyright Simon Malcolm 2012
 '''
 import sqlite3
+from datetime import date
 
 class OrderDB:
     def __init__(self, db_path=':memory:'):
@@ -84,12 +85,41 @@ class OrderDB:
         with self.db_connection as connection:
             connection.execute(UPDATE_SQL, (publisher, old_isbn13))
 
-def make_book(book_row, author_rows = None):
-    if book_row == None: return None
-    book = {}
-    for key in ['isbn13', 'title', 'binding', 'location', 'pub_name']:
-        book[key] = book_row[key]
-    if author_rows is not None:
-        book['authors'] = [row['author'] for row in author_rows]
-    return book
+    def get_order(self, po):
+        """retrieve order data from the db for the given po"""
+        HEADER_QUERY = "SELECT * FROM order_headers WHERE po IS ?;"
+        ENTRY_QUERY = "SELECT * FROM order_entries WHERE po IS ?;"
+        with self.db_connection as con:
+            header_row = con.execute(HEADER_QUERY, [po]).fetchone()
+            entry_rows = con.execute(ENTRY_QUERY, [po]).fetchall()
+        return make_order(header_row, entry_rows)
 
+    def create_order(self, po, ship_method, dist_name,
+                     order_date = date.today().isoformat(),
+                     comment = "", entries = []):
+        INSERT_SQL = "INSERT INTO order_headers VALUES (?, ?, ?, ?, ?);"
+        ENTRIES_SQL = "INSERT INTO order_entries VALUES (?, ?, ?);"
+        with self.db_connection as con:
+            con.execute(INSERT_SQL,
+                        [po, order_date, ship_method, dist_name, comment])
+            if len(entries) > 0:
+                con.executemany(ENTRIES_SQL, 
+                                [[po, entry['isbn13'], entry['quantity']] for entry in entries])
+
+def make_book(book_row, author_rows = None):
+    if book_row is not None:
+        book = {}
+        for key in ['isbn13', 'title', 'binding', 'location', 'pub_name']:
+            book[key] = book_row[key]
+        if author_rows is not None:
+            book['authors'] = [row['author'] for row in author_rows]
+        return book
+
+def make_order(header_row, entry_rows = None):
+    if header_row is not None:
+        header_keys = ['po', 'order_date', 'ship_method', 'dist_name', 'comment']
+        order = {key: header_row[key] for key in keys}
+        if entry_rows is not None:
+            entry_keys = ['isbn13', 'quantity']
+            order['entries'] = [{key: row[key] for key in entry_keys} for row in entry_rows]
+        return order
