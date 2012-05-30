@@ -12,9 +12,16 @@ def teardown():
     """destroy in-memory database"""
     test_db.close()
 
+def valid(action, params, query, expected):
+    if action is not None:
+        execute_sql(test_db, action, params)
+    query_result = execute_sql(test_db, query, params)
+    print "\nExpected: {}\nResult: {}".format(expected, query_result)
+    return query_result == expected
+
 def test_connection():
     with test_db:
-        result = test_db.execute("SELECT SQLITE_VERSION()").fetchone()
+        result = test_db.execute("SELECT SQLITE_VERSION();").fetchone()
     assert result[0] == "3.7.12"
 
 def test_data_present():
@@ -31,7 +38,7 @@ def test_book_view():
         'binding': 'Paper',
         'location': 'Fiction',
         'pub_name': 'Oxford'}
-    assert execute_sql(test_db, QUERY, EXPECTED) == [EXPECTED]
+    assert valid(None, EXPECTED, QUERY, [EXPECTED]), "Should return book info"
 
 def test_book_view_insert():
     ACTION = """INSERT INTO book_view VALUES
@@ -43,8 +50,7 @@ def test_book_view_insert():
         'location': 'History',
         'pub_name': 'Penguin'}
     QUERY = "SELECT * FROM book_view WHERE isbn13 IS :isbn13;"
-    execute_sql(test_db, ACTION, EXPECTED)
-    assert execute_sql(test_db, QUERY, EXPECTED) == [EXPECTED]
+    assert valid(ACTION, EXPECTED, QUERY, [EXPECTED]), "Book should be inserted in db"
 
 def test_book_view_update():
     ACTION = """UPDATE book_view SET
@@ -64,15 +70,13 @@ def test_book_view_update():
         'binding': 'Paper',
         'location': 'Fiction',
         'pub_name': 'Oxford'}
-    execute_sql(test_db, ACTION, PARAMS)
-    assert execute_sql(test_db, QUERY, PARAMS) == [EXPECTED]
+    assert valid(ACTION, PARAMS, QUERY, [EXPECTED]), "values should be updated"
 
 def test_book_view_delete():
     ACTION = "DELETE FROM book_view WHERE isbn13 IS :isbn13;"
     QUERY = "SELECT * FROM book_view WHERE isbn13 IS :isbn13;"
     PARAMS = {'isbn13': '97801995355'}
-    execute_sql(test_db, ACTION, PARAMS)
-    assert execute_sql(test_db, QUERY, PARAMS) == []
+    assert valid(ACTION, PARAMS, QUERY, []), "book should be deleted"
 
 def test_order_headers():
     QUERY = "SELECT * FROM order_headers WHERE po IS :po;"
@@ -80,10 +84,10 @@ def test_order_headers():
     EXPECTED = {
         'po': '1A2100',
         'order_date': '2012-01-01',
-        'ship_method': 'Ususal Means',
+        'ship_method': 'Usual Means',
         'dist_name': 'Oxford',
         'comment': 'No Backorders'}
-    assert execute_sql(test_db, QUERY, EXPECTED) == [EXPECTED]
+    assert valid(None, PARAMS, QUERY, [EXPECTED]), "View should have order info"
 
 def test_order_headers_insert():
     ACTION = """INSERT INTO order_headers VALUES
@@ -101,8 +105,7 @@ def test_order_headers_insert():
         'ship_method': 'Air',
         'dist_name': 'Penguin',
         'comment': 'Extra Backorders'}
-    execute_sql(test_db, ACTION, PARAMS)
-    assert execute_sql(test_db, QUERY, PARAMS) == [EXPECTED]
+    assert valid(ACTION, PARAMS, QUERY, [EXPECTED]), "Order should be inserted"
 
 def test_order_headers_update():
     ACTION = """UPDATE order_headers SET
@@ -126,20 +129,18 @@ def test_order_headers_update():
         'ship_method': 'UPS',
         'dist_name': 'Oxford',
         'comment': 'Nonsense'}
-    execute_sql(test_db, ACTION, PARAMS)
-    assert execute_sql(test_db, QUERY, PARAMS) == [EXPECTED]
+    assert valid(ACTION, PARAMS, QUERY, [EXPECTED]), "Order info should have updated"
 
 def test_order_headers_delete():
     ACTION = "DELETE FROM order_headers WHERE po IS :po;"
     QUERY = "SELECT * FROM order_headers WHERE po IS :po;"
     PARAMS = {'po': '1A2102'}
-    execute_sql(test_db, ACTION, PARAMS)
-    assert execute_sql(test_db, QUERY, PARAMS) == []
+    assert valid(ACTION, PARAMS, QUERY, []), "Order header should be deleted"
 
 def test_order_entries():
     QUERY = "SELECT * FROM order_entries;"
     EXPECTED = {'po': '1A2100', 'isbn13': '9780199535569', 'quantity': 5}
-    assert execute_sql(test_db, QUERY, {}) == [EXPECTED]
+    assert valid(None, [], QUERY, [EXPECTED]), "View should have order quantity"
 
 def test_order_entries_insert():
     ACTION = "INSERT INTO order_entries VALUES (:po, :isbn13, :quantity);"
@@ -148,8 +149,7 @@ def test_order_entries_insert():
     EXPECTED = [
         {'po': '1A2100', 'isbn13': '9780199535569', 'quantity': 5},
         {'po': '1A2100', 'isbn13': '9780199537167', 'quantity': 3}]
-    execute_sql(test_db, ACTION, PARAMS)
-    assert execute_sql(test_db, QUERY, PARAMS) == EXPECTED
+    assert valid(ACTION, PARAMS, QUERY, EXPECTED), "Should have a second entry"
 
 def test_order_entries_update():
     ACTION = "UPDATE order_entries SET quantity = :quantity WHERE isbn13 IS :isbn13 AND po IS :po;"
@@ -158,13 +158,11 @@ def test_order_entries_update():
     EXPECTED = [
         {'po': '1A2100', 'isbn13': '9780199535569', 'quantity': 5},
         {'po': '1A2100', 'isbn13': '9780199537167', 'quantity': 19}]
-    execute_sql(test_db, ACTION, PARAMS)
-    assert execute_sql(test_db, QUERY, PARAMS) == EXPECTED
+    assert valid(ACTION, PARAMS, QUERY, EXPECTED), "Second entry should be updated"
 
-def test_order_entries_delecte():
+def test_order_entries_delete():
     ACTION = "DELETE FROM order_entries WHERE isbn13 IS :isbn13 and po IS :po;"
     QUERY = "SELECT * FROM order_entries WHERE po IS :po;"
     PARAMS = {'po': '1A2100', 'isbn13': '9780199537167'}
     EXPECTED = [{'po': '1A2100', 'isbn13': '9780199535569', 'quantity': 5}]
-    execute_sql(test_db, ACTION, PARAMS)
-    assert execute_sql(test_db, QUERY, PARAMS) == EXPECTED
+    assert valid(ACTION, PARAMS, QUERY, EXPECTED), "second entry should be deleted"

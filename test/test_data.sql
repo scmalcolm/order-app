@@ -7,7 +7,7 @@ INSERT INTO distributors
     VALUES
     ("Penguin", "1554 UK Road", "(555)555-0011", "(555)555-0012", "penguin@dev.null", "Susan", "bmbr01");
 
-INSERT INTO ship_methods (ship_method) VALUES ("Ususal Means");
+INSERT INTO ship_methods (ship_method) VALUES ("Usual Means");
 INSERT INTO ship_methods (ship_method) VALUES ("UPS");
 INSERT INTO ship_methods (ship_method) VALUES ("Air");
 
@@ -34,6 +34,6 @@ INSERT INTO author_view VALUES ("9780199535569", "Jane Austen");
 INSERT INTO author_view VALUES ("9780199537167", "Mary Shelley");
 
 INSERT INTO order_headers VALUES
-    ("1A2100", date("2012-01-01"), "Ususal Means", "Oxford", "No Backorders");
+    ("1A2100", date("2012-01-01"), "Usual Means", "Oxford", "No Backorders");
 
 INSERT INTO order_entries VALUES ("1A2100", "9780199535569", 5);
