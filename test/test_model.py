@@ -71,30 +71,37 @@ def test_book_insert():
     assert get_book_details(TEST_BOOK['isbn13']) == TEST_BOOK, "Book should be in the db"
 
 def test_book_update():
-    TEST_PARAMS = {
+    PARAMS = {
+        'old_isbn13': '9780192807069',
+        'isbn13'    : '9780061474096',
+        'title'     : 'Out of Print',
+        'binding'   : 'Spiral',
+        'location'  : 'Philosophy',
+        'pub_name'  : 'Penguin'}
+    EXPECTED_BEFORE = {
+        'isbn13'    : "9780192807069",
+        'title'     : "Six Tragedies",
+        'binding'   : "Paper",
+        'location'  : "Classics",
+        'pub_name'  : "Oxford",
+        'authors'   : ['Seneca']}
+    EXPECTED_AFTER = {
         'isbn13'    : '9780061474096',
         'title'     : 'Out of Print',
         'binding'   : 'Spiral',
         'location'  : 'Philosophy',
         'pub_name'  : 'Penguin',
-        'authors'   : ['Neal Stephenson']}
-    OLD_ISBN = '9780061474095'
-    book_id = get_book_id(OLD_ISBN)
-    expected_values = get_book_details(OLD_ISBN)
-    db = OrderDB(test_db_path)
-    updates = [
-        ('title', db.update_title),
-        ('binding', db.update_binding),
-        ('pub_name', db.update_publisher),
-        ('location', db.update_location),
-        ('isbn13', db.update_isbn)]
-    for key, update in updates:
-        update(OLD_ISBN, TEST_PARAMS[key])
-        expected_values[key] = TEST_PARAMS[key]
-        assert get_book_details(book_id = book_id) == expected_values, "Book key {} should be updated".format(key)
-
+        'authors'   : ['Seneca']}
+    db_value = get_book_details(PARAMS['old_isbn13'])
+    print "Expected: {}\nDatabase: {}".format(EXPECTED_BEFORE, db_value)
+    assert db_value == EXPECTED_BEFORE, "Book should exist"
+    OrderDB(test_db_path).update_book(**PARAMS)
+    db_value = get_book_details(PARAMS['isbn13']) 
+    print "Expected: {}\nDatabase: {}".format(EXPECTED_AFTER, db_value)
+    assert db_value == EXPECTED_AFTER, "Book should be altered"
+    
 def test_book_delete():
-    isbn13 = '9780061474096'
+    isbn13 = '9780441172719'
     assert get_book_id(isbn13) is not None, "Book should be in db"
     OrderDB(test_db_path).delete_book(isbn13)
     assert get_book_id(isbn13) is None, "Book should be romoved from db"

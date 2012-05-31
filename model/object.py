@@ -55,35 +55,24 @@ class OrderDB:
         with self.db_connection as connection:
             connection.execute(BOOK_DELETE_SQL, [isbn13])
 
-    def update_isbn(self, old_isbn13, isbn13):
-        """update a book's 13-digit isbn"""
-        UPDATE_SQL = "UPDATE book_view SET isbn13 = ? WHERE isbn13 IS ?;"
-        with self.db_connection as connection:
-            connection.execute(UPDATE_SQL, (isbn13, old_isbn13))
-
-    def update_title(self, old_isbn13, title):
-        """update a book's title"""
-        UPDATE_SQL = "UPDATE book_view SET title = ? WHERE isbn13 IS ?;"
-        with self.db_connection as connection:
-            connection.execute(UPDATE_SQL, (title, old_isbn13))
-
-    def update_binding(self, old_isbn13, binding):
-        """update a book's binding"""
-        UPDATE_SQL = "UPDATE book_view SET binding = ? WHERE isbn13 IS ?;"
-        with self.db_connection as connection:
-            connection.execute(UPDATE_SQL, (binding, old_isbn13))
-
-    def update_location(self, old_isbn13, location):
-        """update a book's location"""
-        UPDATE_SQL = "UPDATE book_view SET location = ? WHERE isbn13 IS ?;"
-        with self.db_connection as connection:
-            connection.execute(UPDATE_SQL, (location, old_isbn13))
-
-    def update_publisher(self, old_isbn13, publisher):
-        """update a book's publisher"""
-        UPDATE_SQL = "UPDATE book_view SET pub_name = ? WHERE isbn13 IS ?;"
-        with self.db_connection as connection:
-            connection.execute(UPDATE_SQL, (publisher, old_isbn13))
+    def update_book(self, old_isbn13, **new_values):
+        template = "UPDATE book_view SET {} WHERE isbn13 IS :old_isbn13;"
+        columns = ['isbn13', 'title', 'binding', 'location', 'pub_name']
+        updates = []
+        params = {'old_isbn13': old_isbn13}
+        for column_name in columns:
+            if column_name in new_values:
+                updates.append("{0} = :{0}".format(column_name))
+                params[column_name] = new_values[column_name]
+        if len(updates) > 0:
+            sql = template.format(', '.join(updates))
+            print sql
+            print params
+            try:
+                with self.db_connection as con:
+                    con.execute(sql, params)
+            except sqlite3.Error, e:
+                print "Error: {}".format(e.args[0])
 
     def get_order(self, po):
         """retrieve order data from the db for the given po"""
