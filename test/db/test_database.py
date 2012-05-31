@@ -1,5 +1,5 @@
 import sqlite3
-from db_helper import prepare_test_database, execute_sql, row_to_dict
+from ..db_helper import prepare_test_database, execute_sql, row_to_dict
 
 test_db = None
 
