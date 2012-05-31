@@ -16,10 +16,12 @@ INSERT INTO publishers (pub_name) VALUES ("Oxford");
 INSERT INTO publishers (pub_name) VALUES ("Penguin");
 INSERT INTO publishers (pub_name) VALUES ("Anansi");
 INSERT INTO publishers (pub_name) VALUES ("William Morrow");
+INSERT INTO publishers (pub_name) VALUES ("Ace");
 
 INSERT INTO locations (location) VALUES ("Fiction");
 INSERT INTO locations (location) VALUES ("History");
 INSERT INTO locations (location) VALUES ("Philosophy");
+INSERT INTO locations (location) VALUES ("Classics");
 
 INSERT INTO bindings (binding) VALUES ("Paper");
 INSERT INTO bindings (binding) VALUES ("Cloth");
@@ -31,10 +33,16 @@ INSERT INTO book_view VALUES
     ("9780199537167", "Frankenstein", "Paper", "Fiction", "Oxford");
 INSERT INTO book_view VALUES
     ("9780140430325", "New Grub Street", "Paper", "Fiction", "Penguin");
+INSERT INTO book_view VALUES
+    ("9780441172719", "Dune", "Paper", "Fiction", "Ace");
+INSERT INTO book_view VALUES
+    ("9780192807069", "Six Tragedies", "Paper", "Classics", "Oxford");
 
 INSERT INTO author_view VALUES ("9780199535569", "Jane Austen");
 INSERT INTO author_view VALUES ("9780199537167", "Mary Shelley");
 INSERT INTO author_view VALUES ("9780140430325", "George Gissing");
+INSERT INTO author_view VALUES ("9780441172719", "Frank Herbert");
+INSERT INTO author_view VALUES ("9780192807069", "Seneca");
 
 INSERT INTO order_headers VALUES
     ("1A2100", date("2012-01-01"), "Usual Means", "Oxford", "No Backorders");
