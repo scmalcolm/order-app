@@ -48,8 +48,8 @@ def get_order_details(po = None, order_id = None):
         entry_rows = con.execute(ORDER_QUANTITIES_QUERY, [order_id]).fetchall()
     if header_row is not None:
         order = {key: header_row[key] for key in header_row.keys()}
-        order['entries'] = [(row['isbn13'], row['quantity'])
-                            for row in entry_rows]
+        entry_tuples = [(row['isbn13'], row['quantity']) for row in entry_rows]
+        order['entries'] = set(entry_tuples)
         return order
 
 def test_book_get():
@@ -117,11 +117,12 @@ def test_order_create():
         'ship_method': 'Usual Means',
         'dist_name': 'Oxford',
         'comment': '',
-        'entries': []}
+        'entries': set()}
     assert get_order_id(PARAMS['po']) is None, "Order should not exist yet"
     OrderDB(test_db_path).create_order(**PARAMS)
     db_value = get_order_details(PARAMS['po']) 
-    assert db_value == EXPECTED, "Expected: {}\nDatabase: {}".format(EXPECTED, db_value)
+    print "Expected: {}\nDatabase: {}".format(EXPECTED, db_value)
+    assert db_value == EXPECTED
 
 def test_order_create_with_comment():
     PARAMS = {
@@ -137,23 +138,62 @@ def test_order_create_with_comment():
         'ship_method': 'Usual Means',
         'dist_name': 'Oxford',
         'comment': None,
-        'entries': []}
+        'entries': set()}
     assert get_order_id(PARAMS['po']) is None, "Order should not exist yet"
     OrderDB(test_db_path).create_order(**PARAMS)
-    db_value = get_order_details(PARAMS['po']) 
-    assert db_value == EXPECTED, "Expected: {}\nDatabase: {}".format(EXPECTED, db_value)
-
-def test_order_delete():
-    raise NotImplementedError
+    db_value = get_order_details(PARAMS['po'])
+    print "Expected: {}\nDatabase: {}".format(EXPECTED, db_value)
+    assert db_value == EXPECTED
 
 def test_order_add_entry():
+    PARAMS = {
+        'po': '1C2100',
+        'isbn13': "9780199535569",
+        'quantity': 8}
+    ENTRIES_BEFORE = set([('9780199537167', 10)])
+    ENTRIES_AFTER  = set([('9780199537167', 10),
+                          (PARAMS['isbn13'], PARAMS['quantity'])])
+    EXPECTED = {
+        'po': '1C2100',
+        'order_date': '2012-03-01',
+        'ship_method': 'Usual Means',
+        'dist_name': 'Oxford',
+        'comment': 'No Backorders',
+        'entries': ENTRIES_BEFORE}
+    db_value = get_order_details(PARAMS['po'])
+    assert db_value == EXPECTED, "New entry should not exist yet"
+    EXPECTED['entries'] = ENTRIES_AFTER
+    OrderDB(test_db_path).add_order_entry(**PARAMS)
+    db_value = get_order_details(PARAMS['po'])
+    print "Expected: {}\nDatabase: {}".format(EXPECTED, db_value)
+    assert db_value == EXPECTED
+
+def test_order_update():
+    PARAMS = {
+        'old_po': '1C2101',
+        'po': '1C0102',
+        'order_date': '2010-03-01',
+        'ship_method': 'UPS',
+        'dist_name': 'Penguin',
+        'comment': 'Pack poorly'}
+    EXPECTED = {
+        'po': '1C0102',
+        'order_date': '2010-03-01',
+        'ship_method': 'UPS',
+        'dist_name': 'Penguin',
+        'comment': 'Pack poorly',
+        'entries': set([('9780199537167', 1)])}
+    assert get_order_id(PARAMS['old_po']) is not None, "Order should exist already"
+    OrderDB(test_db_path).update_order(**PARAMS)
+    db_value = get_order_details(PARAMS['po'])
+    print "Expected: {}\nDatabase: {}".format(EXPECTED, db_value)
+    assert db_value == EXPECTED
+
+def test_order_update_entry():
     raise NotImplementedError
 
 def test_order_delete_entry():
     raise NotImplementedError
 
-def test_order_update():
-    raise NotImplementedError
-
-def test_order_update_entry():
+def test_order_delete():
     raise NotImplementedError
