@@ -113,7 +113,7 @@ class OrderDB:
             con.execute(INSERT_SQL, locals())
 
     def update_order(self, old_po, **new_values):
-        update_template = "UPDATE order_headers SET {} WHERE po IS :old_po;"
+        template = "UPDATE order_headers SET {} WHERE po IS :old_po;"
         columns = ['po', 'ship_method', 'dist_name', 'order_date', 'comment']
         updates = []
         params = {'old_po': old_po}
@@ -122,9 +122,35 @@ class OrderDB:
                 updates.append("{0} = :{0}".format(column_name))
                 params[column_name] = new_values[column_name]
         if len(updates) > 0:
-            sql = update_template.format(', '.join(updates))
+            sql = template.format(', '.join(updates))
             with self.db_connection as con:
                 con.execute(sql, params)
+
+    def update_order_entry(self, po, old_isbn13, **new_values):
+        template = "UPDATE order_entries SET {} WHERE po IS :po AND isbn13 IS :isbn13;"
+        columns = ['isbn13', 'quantity']
+        updates = []
+        params = {'old_isbn13': old_isbn13, 'po': po}
+        for column_name in columns:
+            if column_name in new_values:
+                updates.append("{0} = :{0}".format(column_name))
+                params[column_name] = new_values[column_name]
+        if len(updates) > 0:
+            sql = template.format(', '.join(updates))
+            with self.db_connection as con:
+                con.execute(sql, params)
+
+    def delete_order_entry(self, po, isbn13):
+        sql = "DELETE FROM order_entries WHERE po IS ? AND isbn13 IS ?;"
+        with self.db_connection as con:
+            con.execute(sql, [po, isbn13])
+
+    def delete_order(self, po):
+        delete_order = "DELETE FROM order_headers WHERE po IS ?;"
+        delete_entries = "DELETE FROM order_entries WHERE po IS ?"
+        with self.db_connection as con:
+            con.execute(delete_entries, [po])
+            con.execute(delete_order, [po])
 
 def make_book(book_row, author_rows = None):
     if book_row is not None:
