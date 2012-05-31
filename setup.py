@@ -7,7 +7,7 @@ Usage:
 
 from setuptools import setup
 
-APP = ['app.py']
+APP = ['main.py']
 APP_NAME = 'OrderApp'
 VERSION = '0.0.1'
 DATA_FILES = []

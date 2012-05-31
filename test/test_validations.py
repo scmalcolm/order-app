@@ -1,4 +1,4 @@
-from ..validations import *
+from ..model.validations import *
 
 def test_isbn13_valid():
     isbn13 = "9780486272740"

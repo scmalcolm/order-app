@@ -1,6 +1,6 @@
 import sqlite3
 from db_helper import prepare_test_database, connect
-from ..model import OrderDB, make_book
+from ..model.object import OrderDB
 
 test_db_path = "db/test.sqlite3"
 BOOK_ID_QUERY = "SELECT book_id FROM books WHERE isbn13 IS ?;"

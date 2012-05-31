@@ -103,6 +103,11 @@ class BookList(layout.BookListFrame):
         self.publisherCombo.SetValue('')
         self.bindingCombo.SetValue('')
         self.locationCombo.SetValue('')
+
+    def OnISBNEnter(self, event):
+        new_isbn = self.isbnText.GetValue()
+        old_isbn = self.selectedBook['isbn13']
+        wx.GetApp().model.update_isbn(old_isbn, new_isbn)
         
 class OrderApp(wx.App):
 
