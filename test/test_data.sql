@@ -29,9 +29,12 @@ INSERT INTO book_view VALUES
     ("9780199535569", "Pride and Prejudice", "Paper", "Fiction", "Oxford");
 INSERT INTO book_view VALUES
     ("9780199537167", "Frankenstein", "Paper", "Fiction", "Oxford");
+INSERT INTO book_view VALUES
+    ("9780140430325", "New Grub Street", "Paper", "Fiction", "Penguin");
 
 INSERT INTO author_view VALUES ("9780199535569", "Jane Austen");
 INSERT INTO author_view VALUES ("9780199537167", "Mary Shelley");
+INSERT INTO author_view VALUES ("9780140430325", "George Gissing");
 
 INSERT INTO order_headers VALUES
     ("1A2100", date("2012-01-01"), "Usual Means", "Oxford", "No Backorders");
@@ -41,9 +44,17 @@ INSERT INTO order_headers VALUES
     ("1C2100", date("2012-03-01"), "Usual Means", "Oxford", "No Backorders");
 INSERT INTO order_headers VALUES
     ("1C2101", date("2012-03-01"), "Usual Means", "Oxford", "No Backorders");
+INSERT INTO order_headers VALUES
+    ("1C2200", date("2012-03-01"), "Usual Means", "Oxford", "No Backorders");
+INSERT INTO order_headers VALUES
+    ("1C2201", date("2012-03-01"), "Usual Means", "Oxford", "No Backorders");
 
 INSERT INTO order_entries VALUES ("1A2100", "9780199535569", 5);
 INSERT INTO order_entries VALUES ("2A2100", "9780199535569", 3);
 INSERT INTO order_entries VALUES ("2A2100", "9780199537167", 25);
 INSERT INTO order_entries VALUES ("1C2100", "9780199537167", 10);
 INSERT INTO order_entries VALUES ("1C2101", "9780199537167", 1);
+INSERT INTO order_entries VALUES ("1C2200", "9780199535569", 3);
+INSERT INTO order_entries VALUES ("1C2200", "9780199537167", 25);
+INSERT INTO order_entries VALUES ("1C2201", "9780199535569", 3);
+INSERT INTO order_entries VALUES ("1C2201", "9780199537167", 25);
