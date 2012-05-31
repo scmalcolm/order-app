@@ -35,5 +35,15 @@ INSERT INTO author_view VALUES ("9780199537167", "Mary Shelley");
 
 INSERT INTO order_headers VALUES
     ("1A2100", date("2012-01-01"), "Usual Means", "Oxford", "No Backorders");
+INSERT INTO order_headers VALUES
+    ("2A2100", date("2012-01-02"), "UPS", "Oxford", "No Backorders");
+INSERT INTO order_headers VALUES
+    ("1C2100", date("2012-03-01"), "Usual Means", "Oxford", "No Backorders");
+INSERT INTO order_headers VALUES
+    ("1C2101", date("2012-03-01"), "Usual Means", "Oxford", "No Backorders");
 
 INSERT INTO order_entries VALUES ("1A2100", "9780199535569", 5);
+INSERT INTO order_entries VALUES ("2A2100", "9780199535569", 3);
+INSERT INTO order_entries VALUES ("2A2100", "9780199537167", 25);
+INSERT INTO order_entries VALUES ("1C2100", "9780199537167", 10);
+INSERT INTO order_entries VALUES ("1C2101", "9780199537167", 1);

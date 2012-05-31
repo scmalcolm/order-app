@@ -138,9 +138,10 @@ def test_order_headers_delete():
     assert valid(ACTION, PARAMS, QUERY, []), "Order header should be deleted"
 
 def test_order_entries():
-    QUERY = "SELECT * FROM order_entries;"
+    QUERY = "SELECT * FROM order_entries WHERE po IS :po;"
+    PARAMS = {'po': "1A2100"}
     EXPECTED = {'po': '1A2100', 'isbn13': '9780199535569', 'quantity': 5}
-    assert valid(None, [], QUERY, [EXPECTED]), "View should have order quantity"
+    assert valid(None, PARAMS, QUERY, [EXPECTED]), "View should have order quantity"
 
 def test_order_entries_insert():
     ACTION = "INSERT INTO order_entries VALUES (:po, :isbn13, :quantity);"
