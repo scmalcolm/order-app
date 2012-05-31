@@ -190,10 +190,61 @@ def test_order_update():
     assert db_value == EXPECTED
 
 def test_order_update_entry():
-    raise NotImplementedError
+    PARAMS = {
+        'po': '1C2200',
+        'old_isbn13': "9780199535569",
+        'isbn13': "9780140430325",
+        'quantity': 7}
+    ENTRIES_BEFORE = set([("9780199535569", 3),
+                          ("9780199537167", 25)])
+    ENTRIES_AFTER  = set([("9780140430325", 7),
+                          ("9780199537167", 25)])
+    EXPECTED = {
+        'po': '1C2200',
+        'order_date': '2012-03-01',
+        'ship_method': 'Usual Means',
+        'dist_name': 'Oxford',
+        'comment': 'No Backorders',
+        'entries': ENTRIES_BEFORE}
+    db_value = get_order_details(PARAMS['po'])
+    assert db_value == EXPECTED, "Entry should exist already"
+    OrderDB(test_db_path).update_order_entry(**PARAMS)
+    db_value = get_order_details(PARAMS['po'])
+    print "Expected: {}\nDatabase: {}".format(EXPECTED, db_value)
+    assert db_value == EXPECTED
 
 def test_order_delete_entry():
-    raise NotImplementedError
+    PARAMS = {
+        'po': '1C2201',
+        'isbn13': '9780199537167'}
+    ENTRIES_BEFORE = set([("9780199535569", 3),
+                          ("9780199537167", 25)])
+    ENTRIES_AFTER  = set([("9780199535569", 3)])
+    EXPECTED = {
+        'po': '1C2201',
+        'order_date': '2012-03-01',
+        'ship_method': 'Usual Means',
+        'dist_name': 'Oxford',
+        'comment': 'No Backorders',
+        'entries': ENTRIES_BEFORE}
+    db_value = get_order_details(PARAMS['po'])
+    assert db_value == EXPECTED, "Entry should exist already"
+    OrderDB(test_db_path).delete_order_entry(**PARAMS)
+    EXPECTED['entries'] = ENTRIES_AFTER
+    db_value = get_order_details(PARAMS['po'])
+    print "Expected: {}\nDatabase: {}".format(EXPECTED, db_value)
+    assert db_value == EXPECTED, "Entry should be deleted"
 
 def test_order_delete():
-    raise NotImplementedError
+    PARAMS = {'po': '1A2100'}
+    EXPECTED = {
+        'po': '1A2100',
+        'order_date': '2012-01-01',
+        'ship_method': 'Usual Means',
+        'dist_name': 'Oxford',
+        'comment': 'No Backorders',
+        'entries': set([("9780199535569", 5)])}
+    db_value = get_order_details(PARAMS['po'])
+    assert db_value == EXPECTED, "Order should exist already"
+    OrderDB(test_db_path).delete_order(**PARAMS)
+    assert get_order_id(PARAMS['po']) == None, "Entry should be deleted"
