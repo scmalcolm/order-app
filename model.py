@@ -95,16 +95,36 @@ class OrderDB:
         return make_order(header_row, entry_rows)
 
     def create_order(self, po, ship_method, dist_name,
-                     order_date = date.today().isoformat(),
-                     comment = "", entries = []):
+                     order_date = None, comment = "", entries = []):
         INSERT_SQL = "INSERT INTO order_headers VALUES (?, ?, ?, ?, ?);"
         ENTRIES_SQL = "INSERT INTO order_entries VALUES (?, ?, ?);"
+        if order_date is None:
+            order_date = date.today().isoformat()
         with self.db_connection as con:
             con.execute(INSERT_SQL,
                         [po, order_date, ship_method, dist_name, comment])
             if len(entries) > 0:
                 con.executemany(ENTRIES_SQL, 
                                 [[po, entry['isbn13'], entry['quantity']] for entry in entries])
+
+    def add_order_entry(self, po, isbn13, quantity = 1):
+        INSERT_SQL = "INSERT INTO order_entries VALUES (:po, :isbn13, :quantity);"
+        with self.db_connection as con:
+            con.execute(INSERT_SQL, locals())
+
+    def update_order(self, old_po, **new_values):
+        update_template = "UPDATE order_headers SET {} WHERE po IS :old_po;"
+        columns = ['po', 'ship_method', 'dist_name', 'order_date', 'comment']
+        updates = []
+        params = {'old_po': old_po}
+        for column_name in columns:
+            if column_name in new_values:
+                updates.append("{0} = :{0}".format(column_name))
+                params[column_name] = new_values[column_name]
+        if len(updates) > 0:
+            sql = update_template.format(', '.join(updates))
+            with self.db_connection as con:
+                con.execute(sql, params)
 
 def make_book(book_row, author_rows = None):
     if book_row is not None:
