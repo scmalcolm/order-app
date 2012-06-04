@@ -141,6 +141,27 @@ class OrderDB:
             con.execute(delete_entries, [po])
             con.execute(delete_order, [po])
 
+    def publishers(self):
+        QUERY = "SELECT pub_name FROM publishers;"
+        with self.db_connection as con:
+            rows = con.execute(QUERY)
+        result = [row['pub_name'] for row in rows]
+        return result
+
+    def locations(self):
+        QUERY = "SELECT location FROM locations;"
+        with self.db_connection as con:
+            rows = con.execute(QUERY)
+        result = [row['location'] for row in rows]
+        return result
+    
+    def bindings(self):
+        QUERY = "SELECT binding FROM bindings;"
+        with self.db_connection as con:
+            rows = con.execute(QUERY)
+        result = [row['binding'] for row in rows]
+        return result
+
 def make_book(book_row, author_rows = None):
     if book_row is not None:
         book = {}

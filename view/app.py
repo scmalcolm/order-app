@@ -5,7 +5,7 @@ Copyright Simon Malcolm 2012
 '''
 import wx
 import layout
-from .book import BookList
+from . import book
 from ObjectListView import ColumnDefn, ObjectListView
 
 class MainWindow(layout.MainFrame):
@@ -50,8 +50,12 @@ class MainWindow(layout.MainFrame):
         dlg.Destroy()
 
     def OnViewBooks(self, event):
-        dlg = BookList(self)
+        dlg = book.BookList(self)
         dlg.Show()
         dlg.Raise()
+
+    def OnAddBook(self, event):
+        dlg = book.BookCreator(self)
+        dlg.Show()
 
 

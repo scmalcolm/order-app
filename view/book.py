@@ -3,8 +3,8 @@ from . import layout
 from ObjectListView import ColumnDefn, ObjectListView
 
 class BookList(layout.BookListFrame):
-    def __init__(self, parent):
-        super(BookList, self).__init__(parent)
+    def __init__(self, *args, **kwargs):
+        super(BookList, self).__init__(*args, **kwargs)
 
         columnList = [ColumnDefn("ISBN",      valueGetter="isbn13"),
                       ColumnDefn("Title",     valueGetter="title"),
@@ -54,3 +54,24 @@ class BookList(layout.BookListFrame):
         new_isbn = self.isbnText.GetValue()
         old_isbn = self.selectedBook['isbn13']
         wx.GetApp().model.update_isbn(old_isbn, new_isbn)
+
+class BookCreator(layout.NewBookFrame):
+    """docstring for BookCreator"""
+    def __init__(self, *args, **kwargs):
+        super(BookCreator, self).__init__(*args, **kwargs)
+
+        self._initAuthorList()
+        self._initComboControls()
+
+    def _initAuthorList(self):
+        columnList = [ColumnDefn("Name", width = 50, valueGetter = "author")]
+        self.authorList.SetColumns(columnList)
+
+    def _initComboControls(self):
+        publishers = wx.GetApp().model.publishers()
+        bindings = wx.GetApp().model.bindings()
+        locations = wx.GetApp().model.locations()
+        self.publisherCombo.SetItems(publishers)
+        self.bindingCombo.SetItems(bindings)
+        self.locationCombo.SetItems(locations)
+
