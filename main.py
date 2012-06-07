@@ -1,6 +1,6 @@
 import wx
 import model
-import view.app
+from view.menu import MainWindow
 from ObjectListView import ColumnDefn, ObjectListView
 
 db_path = "/Users/bmbr/db/test.sqlite3"
@@ -10,7 +10,7 @@ class OrderApp(wx.App):
     def OnInit(self):
         self.model = model.OrderDB(db_path)
         self.Bind(wx.EVT_ACTIVATE_APP, self.OnActivate)
-        top = view.app.MainWindow(None)
+        top = MainWindow(None)
         self.SetTopWindow(top)
         top.Show()
         return True
