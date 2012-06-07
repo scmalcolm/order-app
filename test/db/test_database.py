@@ -22,7 +22,7 @@ def valid(action, params, query, expected):
 def test_connection():
     with test_db:
         result = test_db.execute("SELECT SQLITE_VERSION();").fetchone()
-    assert result[0] == "3.7.12"
+    assert len(result) == 1
 
 def test_data_present():
     QUERY = "SELECT fax FROM distributors WHERE dist_name IS 'Oxford';"

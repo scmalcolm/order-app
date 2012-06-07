@@ -14,6 +14,12 @@ class OrderDB:
             connection.execute('PRAGMA foreign_keys = ON;')
             self.db_connection = connection
 
+    def is_book(self, isbn13):
+        QUERY = 'SELECT isbn13 FROM book_view WHERE isbn13 IS ?;'
+        with self.db_connection as con:
+            count = con.execute(QUERY, [isbn13]).fetchall()
+        return len(count) == 1
+
     def get_book(self, isbn13):
         """rereive a book record from the database"""
         AUTHOR_QUERY = "SELECT * FROM author_view WHERE isbn13 IS ?;"

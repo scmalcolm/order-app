@@ -5,6 +5,7 @@ class AutoComboBox(wx.ComboBox) :
         super(AutoComboBox, self).__init__(*args, **kwargs)
         
         self.Bind(wx.EVT_CHAR, self.OnChar)
+        self.Bind(wx.EVT_TEXT, self.OnText)
 
     def OnChar(self, event):
         print "OnChar"

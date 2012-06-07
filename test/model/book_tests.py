@@ -106,6 +106,14 @@ def test_book_delete():
     OrderDB(test_db_path).delete_book(isbn13)
     assert get_book_id(isbn13) is None, "Book should be romoved from db"
 
+def test_is_book_true():
+    isbn13 = '9780199535569'
+    assert OrderDB(test_db_path).is_book(isbn13)
+
+def test_is_book_false():
+    isbn13 = '9780199535555'
+    assert not OrderDB(test_db_path).is_book(isbn13)
+
 def test_order_get():
     PO = "1A2001"
     return_value = OrderDB(test_db_path).get_order(PO)

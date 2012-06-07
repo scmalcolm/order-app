@@ -75,3 +75,15 @@ class BookCreator(layout.NewBookFrame):
         self.bindingCombo.SetItems(bindings)
         self.locationCombo.SetItems(locations)
 
+    def OnISBNEnter(self, event):
+        self.titleText.SetFocus()
+
+    def OnTitleEnter(self, event):
+        self.addAuthorButton.SetFocus()
+
+    def OnPublisherEnter(self, event):
+        self.bindingCombo.SetFocus()
+
+    def OnBindingEnter(self, event):
+        self.locationCombo.SetFocus()
+
